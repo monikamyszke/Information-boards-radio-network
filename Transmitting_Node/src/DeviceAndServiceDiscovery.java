@@ -7,7 +7,7 @@ public class DeviceAndServiceDiscovery implements DiscoveryListener{
 	ArrayList<RemoteDevice> discoveredDevices = new ArrayList<>(); //lista przechowuj¹ca wykryte urz¹dzenia (adresy)
 	ArrayList<String> friendlyNames = new ArrayList<>(); //lista przechowuj¹ca nazwy wykrytych urz¹dzeñ
 	public boolean allDiscovered = false;
-	//String url = "btspp://B827EB0A77A7:1";
+	String url = "btspp://B827EB0A77A7:1";
 
 	//funkcja wywo³ywana w chwili wykrycia urz¹dzenia
 	@Override

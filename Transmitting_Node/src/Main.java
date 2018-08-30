@@ -20,7 +20,7 @@ public class Main {
 		DiscoveryAgent agent;
 		DeviceAndServiceDiscovery discoverer;
 		
-		//utworzenie okna aplikacji
+//utworzenie okna aplikacji
 		try {
 			frame = new AppWindow();
 			frame.setVisible(true);
@@ -44,23 +44,23 @@ public class Main {
 		});
 			
 
-//		frame.getSendingButton().addActionListener(new ActionListener() {
-//
-//			public void actionPerformed(ActionEvent arg0) {
-//				try {
-//					StreamConnection con = (StreamConnection) Connector.open(discoverer.url);
-//					OutputStream os = con.openOutputStream();
-//					String textToSend = frame.getTextToSend();
-//					os.write(textToSend.getBytes());
-//					con.close();
-//							
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//				
-//			}
-//			
-//		});		
+		frame.getSendingButton().addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					StreamConnection con = (StreamConnection) Connector.open(discoverer.url);
+					OutputStream os = con.openOutputStream();
+					String textToSend = frame.getTextToSend();
+					os.write(textToSend.getBytes());
+					con.close();
+							
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+		});		
 		
 		
 		}
