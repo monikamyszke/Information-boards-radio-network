@@ -1,17 +1,19 @@
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-
 import javax.bluetooth.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
+import org.apache.commons.io.IOUtils;
 
 public class Main {
 	
 	static AppWindow frame;
+	static byte[] bytesArray;
 	
 	public static void main(String[] args) {
-		
+		//utworzenie okna aplikacji
 		try {
 			frame = new AppWindow();
 			frame.setVisible(true);
@@ -20,17 +22,18 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-//odbieranie danych ze strumienia
+		
+		//odbieranie danych ze strumienia
 		try {
 			StreamConnectionNotifier notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));
 			StreamConnection conn = (StreamConnection)notifier.acceptAndOpen();
 			InputStream is = conn.openInputStream();
+			FileOutputStream fos = new FileOutputStream("/home/pi/Desktop/serce.jpg");
 			
-			byte buffer[] = new byte[80];
-			int bytes_read = is.read(buffer);
-			String received = new String(buffer, 0, bytes_read);
-			System.console().writer().println("bytes: " + bytes_read + " received: " + received);
-			frame.setMessage(received);
+			bytesArray = IOUtils.toByteArray(is);
+			fos.write(bytesArray);
+			fos.close();
+			is.close();
 			conn.close();
 
 		} catch (IOException e) {
