@@ -25,17 +25,16 @@ public class Main {
 		
 		//odbieranie danych ze strumienia
 		try {
-			StreamConnectionNotifier notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));
-			StreamConnection conn = (StreamConnection)notifier.acceptAndOpen();
-			InputStream is = conn.openInputStream();
-			FileOutputStream fos = new FileOutputStream("/home/pi/Desktop/serce.jpg");
+			StreamConnectionNotifier notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( )); //obiekt "nas³uchuj¹cy" po³¹czenia przychodz¹cego do serwera
+			StreamConnection conn = (StreamConnection)notifier.acceptAndOpen(); //akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
+			InputStream is = conn.openInputStream(); //otwarcie strumienia wejœciowego danych
+			FileOutputStream os = new FileOutputStream("/home/pi/Desktop/owczarki.jpg");
 			
-			bytesArray = IOUtils.toByteArray(is);
-			fos.write(bytesArray);
-			fos.close();
+			bytesArray = IOUtils.toByteArray(is); //zapisanie danych ze strumienia do tablicy bajtów
+			os.write(bytesArray); //zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
+			os.close();
 			is.close();
 			conn.close();
-
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

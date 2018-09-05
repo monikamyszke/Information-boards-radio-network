@@ -31,7 +31,6 @@ public class SearchingThread implements Runnable {
 						frame.setListOfDevices(discoverer.friendlyNames.get(i));
 						i ++;
 					}
-
 				} catch(Exception e) {}
 			}
 		} catch(BluetoothStateException e) {

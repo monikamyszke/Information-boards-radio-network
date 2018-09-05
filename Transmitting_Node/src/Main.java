@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -36,7 +38,7 @@ public class Main {
 		}
 			
 		discoverer = new DeviceAndServiceDiscovery();
-		localDevice = LocalDevice.getLocalDevice(); // lokalny adapter Bluetooth
+		localDevice = LocalDevice.getLocalDevice(); //lokalny adapter Bluetooth
 		agent = localDevice.getDiscoveryAgent();
 		
 		frame.getSearchingButton().addActionListener(new ActionListener() {
@@ -52,17 +54,27 @@ public class Main {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					InputStream is = null;
-					FileOutputStream fos;
+					FileOutputStream fileOS;
+					FileOutputStream textFileOS = null;
+					PrintWriter saveBytes;
 					File fileToSend;
-					//próbne przetwarzanie pliku - zapisanie kopii na pulpicie przed wys³aniem
+					//próbne przetwarzanie pliku - zapisanie kopii obrazu na pulpicie
+					//oraz zapisanie bajtów w postaci heksalnej do pliku txt
 					try {
-						fileToSend = new File("C:\\Users\\MonikaM\\Desktop\\owczarki.jpg");
+						fileToSend = new File("C:\\Users\\MonikaM\\Desktop\\colors.png");
 						is = new FileInputStream(fileToSend);
-						bytesArray = IOUtils.toByteArray(is);
-						fos = new FileOutputStream("C:\\Users\\MonikaM\\Desktop\\owczarki-2.jpg");
-						fos.write(bytesArray);
+						bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
+						fileOS = new FileOutputStream("C:\\Users\\MonikaM\\Desktop\\colors-2.png");
+						fileOS.write(bytesArray); //zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
+						 
+						textFileOS = new FileOutputStream("C:\\Users\\MonikaM\\Desktop\\colors.txt"); //strumieñ do zapisu bajtów w postaci tekstowej
+						saveBytes = new PrintWriter(textFileOS);
+						for(byte b : bytesArray) {
+							saveBytes.print(String.format("0x%02X ", b)); //zapis bajtów w postaci hekslanej do strumienia
+						}
 						is.close();
-						fos.close();
+						fileOS.close();
+						textFileOS.close();
 					} catch (FileNotFoundException e1) {
 						e1.printStackTrace();
 					}
@@ -72,10 +84,7 @@ public class Main {
 					OutputStream os = con.openOutputStream();
 					os.write(bytesArray);
 					os.close();
-					con.close();
-					
-					
-							
+					con.close();	
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

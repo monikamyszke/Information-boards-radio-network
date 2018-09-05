@@ -42,7 +42,7 @@ public class DeviceAndServiceDiscovery implements DiscoveryListener{
 		}
 	}
 	
-	//funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID
+	//funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu - UUID Serial Port Profile, czyli 0x1101)
 	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
 		for(int i=0; i<serviceRecord.length; i++) {
