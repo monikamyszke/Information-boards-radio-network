@@ -15,7 +15,6 @@ import javax.swing.JComboBox;
 
 public class AppWindow extends JFrame {
 
-
 	private static final long serialVersionUID = 1L;
 	private JPanel mainPanel;
 	private Color grey = new Color(58, 68, 84);

@@ -1,3 +1,6 @@
+/*W¹tek stworzony w celu wyszukiwania urz¹dzeñ i wyœwietlania ich w czasie rzeczywistym w oknie aplikacji
+ * - nie powoduje blokowania GUI*/
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.RemoteDevice;
@@ -5,30 +8,29 @@ import javax.bluetooth.UUID;
 
 public class SearchingThread implements Runnable {
 	
-	DeviceAndServiceDiscovery discoverer;
-	DiscoveryAgent agent;
+	Bluetooth bluetooth;
 	AppWindow frame;
 	
-	public SearchingThread (DeviceAndServiceDiscovery discoverer, DiscoveryAgent agent, AppWindow frame)
+	public SearchingThread (Bluetooth bluetooth, AppWindow frame)
 	{
-		this.discoverer = discoverer;
-		this.agent = agent;
+		this.bluetooth = bluetooth;
 		this.frame = frame;
 	}
 
 	@Override
 	public void run() {
 		try {
+			//wyszukiwanie urz¹dzeñ
 			System.out.println("Device discovery");
-			agent.startInquiry(DiscoveryAgent.GIAC, discoverer); //rozpoczêcie wyszukiwania urz¹dzeñ
+			bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); 
 			
-			synchronized(discoverer) { //synchronizacja w¹tków
+			synchronized(bluetooth) { //synchronizacja w¹tków
 				try {
 					int i = 0;
-					while (discoverer.allDiscovered == false) {
-						discoverer.wait(); // czekanie na powiadomienie o wykryciu urz¹dzenia
-						frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + discoverer.discoveredDevices.get(i) +  "     Nazwa: " + discoverer.friendlyNames.get(i)  );
-						frame.setListOfDevices(discoverer.friendlyNames.get(i));
+					while (bluetooth.allDiscovered == false) {
+						bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()
+						frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i) +  "     Nazwa: " + bluetooth.friendlyNames.get(i));
+						frame.setListOfDevices(bluetooth.friendlyNames.get(i));
 						i ++;
 					}
 				} catch(Exception e) {}
@@ -45,13 +47,13 @@ public class SearchingThread implements Runnable {
 		int[] attrIdSet = new int[] {0x0100}; // atrybut - Service Name ID
 		System.out.println("Service discovery");
 		
-		for(int i=0; i<discoverer.discoveredDevices.size(); i++) {
-			RemoteDevice remoteDevice = discoverer.discoveredDevices.get(i);
+		for(int i=0; i<bluetooth.discoveredDevices.size(); i++) {
+			RemoteDevice remoteDevice = bluetooth.discoveredDevices.get(i);
 			try {
-				agent.searchServices(attrIdSet, uuidSet, remoteDevice, discoverer);
-				synchronized(discoverer) { 
+				bluetooth.agent.searchServices(attrIdSet, uuidSet, remoteDevice, bluetooth);
+				synchronized(bluetooth) { 
 					try {
-						discoverer.wait(); 
+						bluetooth.wait(); 
 					} catch(Exception e) {}
 				}
 			} catch (BluetoothStateException e1) {
