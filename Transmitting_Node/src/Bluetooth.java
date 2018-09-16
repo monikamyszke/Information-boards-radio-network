@@ -1,6 +1,5 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -18,11 +17,16 @@ public class Bluetooth implements DiscoveryListener {
 	ArrayList<String> friendlyNames; //lista przechowuj¹ca nazwy wykrytych urz¹dzeñ
 	boolean allDiscovered;
 	String url = "btspp://B827EB0A77A7:1";
+	//pózniej stworzyæ listê z adresami url
 	
 	byte[] bytesArray;
 	
-	public Bluetooth() throws BluetoothStateException{
-		this.localDevice = LocalDevice.getLocalDevice(); //lokalny adapter Bluetooth
+	public Bluetooth(){
+		try {
+			this.localDevice = LocalDevice.getLocalDevice(); //lokalny adapter Bluetooth
+		} catch (BluetoothStateException e) {
+			e.printStackTrace();
+		} 
 		this.agent = localDevice.getDiscoveryAgent();
 		this.discoveredDevices = new ArrayList<RemoteDevice>();
 		this.friendlyNames = new ArrayList<String>();
@@ -43,7 +47,7 @@ public class Bluetooth implements DiscoveryListener {
 		friendlyNames.add(name);
 		System.out.println("Wykryto urz¹dzenie. Adres: " + address + " Nazwa: " + name);
 			
-		synchronized(this) { //synchronizacja z w¹tkiem SearchingThread odœwie¿aj¹cym informacje w GUI
+		synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
 			try {
 				this.notifyAll();
 			} catch(Exception e) {};
@@ -66,7 +70,7 @@ public class Bluetooth implements DiscoveryListener {
 	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
 		for(int i=0; i<serviceRecord.length; i++) {
-			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); //pobranie nazwy serwisu - wartoœci atrybutu o ID = 0x0100
+			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); //pobranie nazwy serwisu - wartoœci atrybutu o ID 0x0100
 			String connectionURL = serviceRecord[i].getConnectionURL(0, false);
 			if(serviceName != null) 
 				System.out.println((String)serviceName.getValue());
@@ -101,14 +105,14 @@ public class Bluetooth implements DiscoveryListener {
 	
 	//funkcja pomocnicza - zapisanie bajtów w postaci heksalnej do pliku tekstowego
 	public void saveBytesToFile(byte[] bytesArray) {
-		PrintWriter saveBytes;
+		PrintWriter bytesWriter;
 		try {
-			FileOutputStream textFileOS = new FileOutputStream("C:\\Users\\MonikaM\\Desktop\\colors.txt");
-			saveBytes = new PrintWriter(textFileOS);
+			File bytesTxtFile = new File("C:\\Users\\MonikaM\\Desktop\\colors.txt");
+			bytesWriter = new PrintWriter(bytesTxtFile);
 			for(byte b : bytesArray) {
-				saveBytes.print(String.format("0x%02X ", b));
+				bytesWriter.print(String.format("0x%02X ", b));
 			}
-			textFileOS.close();
+			bytesWriter.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

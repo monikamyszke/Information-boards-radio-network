@@ -2,11 +2,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DiscoveryAgent;
 
 public class Main {
 	
 	static AppWindow frame;
-	static byte[] bytesArray;
 	
 	public static void main(String[] args) throws BluetoothStateException {
 		
@@ -25,8 +25,14 @@ public class Main {
 		frame.getSearchingButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
-			Thread searcher = new Thread(new SearchingThread(bluetooth, frame));
-			searcher.start(); //rozpoczêcie wyszukiwania urz¹dzeñ
+				try {
+					System.out.println("Device discovery");
+					bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); //rozpoczêcie wyszukiwania urz¹dzeñ
+					Thread searcher = new Thread(new GUISearchingThread(bluetooth, frame));
+					searcher.start();
+				} catch(BluetoothStateException e) {
+					System.out.println(e.toString());
+				}
 			}
 		});
 			

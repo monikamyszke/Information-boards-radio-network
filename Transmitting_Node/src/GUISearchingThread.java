@@ -1,17 +1,16 @@
-/*W¹tek stworzony w celu wyszukiwania urz¹dzeñ i wyœwietlania ich w czasie rzeczywistym w oknie aplikacji
+/*W¹tek stworzony w celu wyœwietlania urz¹dzeñ podczas ich wyszukiwania w oknie aplikacji
  * - nie powoduje blokowania GUI*/
 
 import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 
-public class SearchingThread implements Runnable {
+public class GUISearchingThread implements Runnable {
 	
 	Bluetooth bluetooth;
 	AppWindow frame;
 	
-	public SearchingThread (Bluetooth bluetooth, AppWindow frame)
+	public GUISearchingThread (Bluetooth bluetooth, AppWindow frame)
 	{
 		this.bluetooth = bluetooth;
 		this.frame = frame;
@@ -19,24 +18,16 @@ public class SearchingThread implements Runnable {
 
 	@Override
 	public void run() {
-		try {
-			//wyszukiwanie urz¹dzeñ
-			System.out.println("Device discovery");
-			bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); 
-			
-			synchronized(bluetooth) { //synchronizacja w¹tków
-				try {
-					int i = 0;
-					while (bluetooth.allDiscovered == false) {
-						bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()
-						frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i) +  "     Nazwa: " + bluetooth.friendlyNames.get(i));
-						frame.setListOfDevices(bluetooth.friendlyNames.get(i));
-						i ++;
-					}
-				} catch(Exception e) {}
-			}
-		} catch(BluetoothStateException e) {
-			System.out.println(e.toString());
+		synchronized(bluetooth) { //synchronizacja w¹tków
+			try {
+				int i = 0;
+				while (bluetooth.allDiscovered == false) {
+					bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()
+					frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i) +  "     Nazwa: " + bluetooth.friendlyNames.get(i));
+					frame.setListOfDevices(bluetooth.friendlyNames.get(i));
+					i ++;
+				}
+			} catch(Exception e) {}
 		}
 		
 		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");
