@@ -3,6 +3,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import javax.bluetooth.*;
 import javax.microedition.io.Connector;
@@ -20,6 +21,7 @@ public class Bluetooth implements DiscoveryListener {
 	//pózniej stworzyæ listê z adresami url
 	
 	byte[] bytesArray;
+	byte[]	frame;
 	
 	public Bluetooth(){
 		try {
@@ -95,21 +97,22 @@ public class Bluetooth implements DiscoveryListener {
 		try {
 			FileInputStream is = new FileInputStream(fileToSend);
 			bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
-			saveBytesToFile(bytesArray);
 			is.close();
+			buildFrame(fileToSend);
+			saveBytesToFile();
 			startBluetoothConnection();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 	
-	//funkcja pomocnicza - zapisanie bajtów w postaci heksalnej do pliku tekstowego
-	public void saveBytesToFile(byte[] bytesArray) {
+	//funkcja pomocnicza - zapisanie ramki w postaci heksalnej do pliku tekstowego
+	public void saveBytesToFile() {
 		PrintWriter bytesWriter;
 		try {
-			File bytesTxtFile = new File("C:\\Users\\MonikaM\\Desktop\\colors.txt");
+			File bytesTxtFile = new File("C:\\Users\\MonikaM\\Desktop\\sentBytes.txt");
 			bytesWriter = new PrintWriter(bytesTxtFile);
-			for(byte b : bytesArray) {
+			for(byte b : frame) {
 				bytesWriter.print(String.format("0x%02X ", b));
 			}
 			bytesWriter.close();
@@ -118,13 +121,29 @@ public class Bluetooth implements DiscoveryListener {
 		}
 	}
 	
+	//funkcja tworz¹ca ramkê - iloœæ bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
+	public void buildFrame(File fileToSend) {
+		String fileName = new String(fileToSend.getName());
+		byte[] fileNameBytes = null;
+		try {
+			fileNameBytes = fileName.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		frame = new byte[1 + fileNameBytes.length + bytesArray.length];
+		frame[0] = (byte) fileNameBytes.length;
+		System.arraycopy(fileNameBytes, 0, frame, 1, fileNameBytes.length);
+		System.arraycopy(bytesArray, 0, frame, fileNameBytes.length + 1, bytesArray.length);
+
+	}
+	
 	public void startBluetoothConnection() {
 		//otwarcie po³¹czenie i zapisanie tablicy bajtów do strumienia wyjœciowego
 		StreamConnection conn;
 		try {
 			conn = (StreamConnection) Connector.open(url);
 			OutputStream os = conn.openOutputStream();
-			os.write(bytesArray);
+			os.write(frame);
 			os.close();
 			conn.close();
 		} catch (IOException e) {

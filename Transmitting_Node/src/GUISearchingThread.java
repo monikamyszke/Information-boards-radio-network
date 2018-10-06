@@ -25,7 +25,7 @@ public class GUISearchingThread implements Runnable {
 					bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()
 					frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i) +  "     Nazwa: " + bluetooth.friendlyNames.get(i));
 					frame.setListOfDevices(bluetooth.friendlyNames.get(i));
-					i ++;
+					i++;
 				}
 			} catch(Exception e) {}
 		}

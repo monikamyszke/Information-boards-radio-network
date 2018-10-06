@@ -3,15 +3,18 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
+import javax.swing.JFileChooser;
 
 public class Main {
 	
 	static AppWindow frame;
+	static File fileToSend;
+	static String fileName;
 	
 	public static void main(String[] args) throws BluetoothStateException {
 		
 		Bluetooth bluetooth = new Bluetooth();
-			
+		
 		//utworzenie okna aplikacji
 		try {
 			frame = new AppWindow();
@@ -35,11 +38,23 @@ public class Main {
 				}
 			}
 		});
+		
+		frame.getFileChooserButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent a) {
+				JFileChooser fileChooser = new JFileChooser();
+				if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+					fileToSend = fileChooser.getSelectedFile();
+					fileName = fileToSend.getName();
+					frame.getFileChooserButton().setText(fileName);
+				}
+			}
+			
+		});
 			
 		frame.getSendingButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
-				File fileToSend = new File("C:\\Users\\MonikaM\\Desktop\\colors.png");
 				bluetooth.sendFile(fileToSend);
 			}	
 		});	

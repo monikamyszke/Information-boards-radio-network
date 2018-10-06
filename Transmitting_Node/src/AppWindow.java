@@ -10,8 +10,8 @@ import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.JLabel;
 import javax.swing.JTextPane;
-import javax.swing.JTextArea;
 import javax.swing.JComboBox;
+import java.awt.FlowLayout;
 
 public class AppWindow extends JFrame {
 
@@ -24,8 +24,8 @@ public class AppWindow extends JFrame {
 	private JButton searchButton;
 	private JTextPane devices;
 	private JComboBox<String> listOfdevices;
-	private JTextArea textToSend;
 	private JButton sendButton;
+	private JButton chooseFileButton;
 	
 	public JButton getSearchingButton() {
 		return searchButton;
@@ -39,8 +39,8 @@ public class AppWindow extends JFrame {
 		this.listOfdevices.addItem(name);
 	}
 	
-	public String getTextToSend() {
-		return textToSend.getText();
+	public JButton getFileChooserButton() {
+		return chooseFileButton;
 	}
 	
 	public JButton getSendingButton() {
@@ -50,12 +50,12 @@ public class AppWindow extends JFrame {
 	public AppWindow() {
 		setTitle("Transmitting Node");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 628, 395);
+		setBounds(100, 100, 600, 400);
 		mainPanel = new JPanel();
-		mainPanel.setBorder(new EmptyBorder(0, 0, 0, 0));
-		setContentPane(mainPanel);
+		mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 		mainPanel.setBackground(mint);
 		mainPanel.setLayout(new GridLayout(1, 2, 0, 0));
+		setContentPane(mainPanel);
 		
 		JPanel panel1 = new JPanel();
 		mainPanel.add(panel1);
@@ -69,6 +69,9 @@ public class AppWindow extends JFrame {
 		panel2.add(top2, BorderLayout.NORTH);
 		
 		JPanel bottom2 = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) bottom2.getLayout();
+		flowLayout.setVgap(0);
+		flowLayout.setHgap(0);
 		bottom2.setBorder(new EmptyBorder(40, 0, 0, 0));
 		bottom2.setPreferredSize(new Dimension(0, 150));
 		panel2.add(bottom2, BorderLayout.SOUTH);
@@ -85,21 +88,19 @@ public class AppWindow extends JFrame {
 		center2.setBackground(grey);
 		bottom2.setBackground(grey);
 		panel2.add(center2, BorderLayout.CENTER);
-		center2.setLayout(new BorderLayout(0, 0));
 		
-		textToSend = new JTextArea();
-		textToSend.setBorder(new EmptyBorder(20, 20, 20, 20));
-		textToSend.setLineWrap(true);
-		textToSend.setWrapStyleWord(true);
-		center2.add(textToSend, BorderLayout.CENTER);
 		panel1.setBackground(mint);
 		top2.setBackground(grey);
-		
-		JLabel lblWprowad = new JLabel("Wpisz tekst do wys³ania:");
-		lblWprowad.setFont(new Font("Ebrima", Font.BOLD, 13));
-		lblWprowad.setForeground(white);
-		top2.add(lblWprowad);
 		panel1.setLayout(new BorderLayout(0, 0));
+		
+		chooseFileButton = new JButton("Wybierz plik z dysku");
+		chooseFileButton.setFont(new Font("Ebrima", Font.BOLD, 13));
+		chooseFileButton.setFocusPainted(false);
+		chooseFileButton.setBackground(grey);
+		chooseFileButton.setForeground(white);
+		chooseFileButton.setFocusPainted(false);
+		chooseFileButton.setPreferredSize(new Dimension(200, 100));
+		center2.add(chooseFileButton, BorderLayout.CENTER);
 		
 		JPanel top = new JPanel();
 		top.setBorder(new EmptyBorder(30, 0, 0, 0));

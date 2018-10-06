@@ -16,8 +16,9 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-		bluetooth.waitForConnection();
+		while(true) {
+			bluetooth.listenForConnection();
+		}
 		
 	}
 
