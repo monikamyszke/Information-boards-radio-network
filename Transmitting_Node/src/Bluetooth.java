@@ -21,7 +21,7 @@ public class Bluetooth implements DiscoveryListener {
 	//pózniej stworzyæ listê z adresami url
 	
 	byte[] bytesArray;
-	byte[]	frame;
+	byte[] frame;
 	
 	public Bluetooth(){
 		try {
@@ -106,6 +106,21 @@ public class Bluetooth implements DiscoveryListener {
 		}
 	}
 	
+	//funkcja tworz¹ca ramkê - iloœæ bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
+		public void buildFrame(File fileToSend) {
+			String fileName = new String(fileToSend.getName());
+			byte[] fileNameBytes = null;
+			try {
+				fileNameBytes = fileName.getBytes("UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
+			frame = new byte[1 + fileNameBytes.length + bytesArray.length];
+			frame[0] = (byte) fileNameBytes.length;
+			System.arraycopy(fileNameBytes, 0, frame, 1, fileNameBytes.length);
+			System.arraycopy(bytesArray, 0, frame, fileNameBytes.length + 1, bytesArray.length);
+		}
+	
 	//funkcja pomocnicza - zapisanie ramki w postaci heksalnej do pliku tekstowego
 	public void saveBytesToFile() {
 		PrintWriter bytesWriter;
@@ -119,22 +134,6 @@ public class Bluetooth implements DiscoveryListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	//funkcja tworz¹ca ramkê - iloœæ bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
-	public void buildFrame(File fileToSend) {
-		String fileName = new String(fileToSend.getName());
-		byte[] fileNameBytes = null;
-		try {
-			fileNameBytes = fileName.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		frame = new byte[1 + fileNameBytes.length + bytesArray.length];
-		frame[0] = (byte) fileNameBytes.length;
-		System.arraycopy(fileNameBytes, 0, frame, 1, fileNameBytes.length);
-		System.arraycopy(bytesArray, 0, frame, fileNameBytes.length + 1, bytesArray.length);
-
 	}
 	
 	public void startBluetoothConnection() {

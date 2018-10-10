@@ -1,4 +1,3 @@
-
 public class Main {
 	
 	static AppWindow frame;
@@ -16,10 +15,8 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		while(true) {
-			bluetooth.listenForConnection();
-		}
 		
+		bluetooth.run();
 	}
 
 }

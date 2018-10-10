@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 
-import javax.bluetooth.*;
+import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 
 public class Bluetooth {
 	
+	StreamConnectionNotifier notifier;
 	StreamConnection conn;
 	File receivedFile;
 	String fileName;
@@ -20,10 +21,22 @@ public class Bluetooth {
 	byte[] bytesArray;
 	byte[] frame;
 	
+	public void run() {
+		try {
+			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));//obiekt oczekuj¹cy po³¹czenia przychodz¹cego do serwera, reprezentuje nas³uchuj¹ce gniazdo
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		while(true) {
+			listenForConnection();
+		}
+	}
+	
 	public void listenForConnection() {
 		try {
-			StreamConnectionNotifier notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( )); //obiekt "nas³uchuj¹cy" po³¹czenia przychodz¹cego do serwera
 			conn = (StreamConnection)notifier.acceptAndOpen(); //akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
+			System.out.println("Otwarto po³¹czenie");
 			receiveData();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -35,11 +48,13 @@ public class Bluetooth {
 		try {
 			is = conn.openInputStream(); //otwarcie strumienia wejœciowego danych
 			frame = IOUtils.toByteArray(is); //zapisanie danych ze strumienia do tablicy bajtów
+			System.out.println("Odebrano plik");
 			is.close();
-			saveBytesToFile();
+//			saveBytesToFile();
 			decodeFrame();
 			saveFile();
 			conn.close();
+			System.out.println("Zakoñczono po³¹czenie");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -56,7 +71,7 @@ public class Bluetooth {
 			e.printStackTrace();
 		}
 		System.arraycopy(frame, fileNameLength + 1, bytesArray, 0, bytesArray.length);
-		System.out.println(fileName);
+		System.out.println("Zdekodowano ramkê");
 	}
 	
 	public void saveFile() {
@@ -65,6 +80,7 @@ public class Bluetooth {
 			os = new FileOutputStream("/home/pi/Desktop/" + fileName);
 			os.write(bytesArray); //zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
 			os.close();
+			System.out.println("Zapisano plik");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -76,10 +92,11 @@ public class Bluetooth {
 		try {
 			File bytesTxtFile = new File("/home/pi/Desktop/receivedBytes.txt");
 			bytesWriter = new PrintWriter(bytesTxtFile);
-			for(byte b : bytesArray) {
+			for(byte b : frame) {
 				bytesWriter.print(String.format("0x%02X ", b));
 			}
 			bytesWriter.close();
+			System.out.println("Zapisano bajty do pliku tekstowego");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

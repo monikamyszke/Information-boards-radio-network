@@ -9,7 +9,6 @@ public class Main {
 	
 	static AppWindow frame;
 	static File fileToSend;
-	static String fileName;
 	
 	public static void main(String[] args) throws BluetoothStateException {
 		
@@ -43,6 +42,7 @@ public class Main {
 			@Override
 			public void actionPerformed(ActionEvent a) {
 				JFileChooser fileChooser = new JFileChooser();
+				String fileName;
 				if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					fileToSend = fileChooser.getSelectedFile();
 					fileName = fileToSend.getName();
