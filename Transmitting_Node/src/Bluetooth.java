@@ -34,7 +34,7 @@ public class Bluetooth implements DiscoveryListener {
 		this.friendlyNames = new ArrayList<String>();
 		this.allDiscovered = false;
 	}
- 
+	
 	//funkcja wywo³ywana w chwili wykrycia urz¹dzenia
 	@Override
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
@@ -99,7 +99,7 @@ public class Bluetooth implements DiscoveryListener {
 			bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
 			is.close();
 			buildFrame(fileToSend);
-			saveBytesToFile();
+//			saveBytesToFile();
 			startBluetoothConnection();
 		} catch (IOException e) {
 			e.printStackTrace();

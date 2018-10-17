@@ -23,7 +23,7 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-			
+		
 		frame.getSearchingButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
