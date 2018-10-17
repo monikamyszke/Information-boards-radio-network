@@ -10,6 +10,8 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import org.apache.commons.io.IOUtils;
 
+import com.intel.bluetooth.RemoteDeviceHelper;
+
 public class Bluetooth implements DiscoveryListener {
 	
 	LocalDevice localDevice;
@@ -88,6 +90,22 @@ public class Bluetooth implements DiscoveryListener {
 		}	
 	}
 	
+	public void pairWithDevice(int deviceNumber) throws IOException {
+		RemoteDevice remoteDevice = discoveredDevices.get(deviceNumber).getRemoteDevice();
+		if(remoteDevice.isTrustedDevice()) {
+			System.out.println("Urz¹dzenia s¹ ju¿ sparowane");
+		}
+		else {
+			String PIN = "00000";
+			try {
+				RemoteDeviceHelper.authenticate(remoteDevice, PIN);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		
+	}
+	
 	public void sendFile(File fileToSend, int deviceNumber) {
 		try {
 			FileInputStream is = new FileInputStream(fileToSend);
@@ -137,10 +155,12 @@ public class Bluetooth implements DiscoveryListener {
 		try {
 			String urlAddress = "btspp://" + discoveredDevices.get(deviceNumber).getRemoteDevice() + ":1";
 			conn = (StreamConnection) Connector.open(urlAddress);
+			System.out.println("Otwarto po³¹czenie");
 			OutputStream os = conn.openOutputStream();
 			os.write(frame);
 			os.close();
 			conn.close();
+			System.out.println("Zamkniêto po³¹czenie");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	

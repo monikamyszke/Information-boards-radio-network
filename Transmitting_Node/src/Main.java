@@ -1,6 +1,8 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.IOException;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.swing.JFileChooser;
@@ -38,6 +40,17 @@ public class Main {
 			}
 		});
 		
+		frame.getPairingButton().addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent a) {
+				int deviceNumber = frame.getDeviceNumber();
+				try {
+					bluetooth.pairWithDevice(deviceNumber);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});		
 		frame.getFileChooserButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
