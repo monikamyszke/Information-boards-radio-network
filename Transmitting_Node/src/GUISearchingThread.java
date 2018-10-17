@@ -23,8 +23,8 @@ public class GUISearchingThread implements Runnable {
 				int i = 0;
 				while (bluetooth.allDiscovered == false) {
 					bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz퉐zenia z metody deviceDiscovered()
-					frame.setLabel("Wykryto urz퉐zenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i) +  "     Nazwa: " + bluetooth.friendlyNames.get(i));
-					frame.setListOfDevices(bluetooth.friendlyNames.get(i));
+					frame.setLabel("Wykryto urz퉐zenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i).getRemoteDevice()+  "     Nazwa: " + bluetooth.discoveredDevices.get(i).getName());
+					frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); //dodanie urz퉐zenia do listy w GUI
 					i++;
 				}
 			} catch(Exception e) {}
@@ -39,7 +39,7 @@ public class GUISearchingThread implements Runnable {
 		System.out.println("Service discovery");
 		
 		for(int i=0; i<bluetooth.discoveredDevices.size(); i++) {
-			RemoteDevice remoteDevice = bluetooth.discoveredDevices.get(i);
+			RemoteDevice remoteDevice = bluetooth.discoveredDevices.get(i).getRemoteDevice();
 			try {
 				bluetooth.agent.searchServices(attrIdSet, uuidSet, remoteDevice, bluetooth);
 				synchronized(bluetooth) { 

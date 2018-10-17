@@ -14,11 +14,8 @@ public class Bluetooth implements DiscoveryListener {
 	
 	LocalDevice localDevice;
 	DiscoveryAgent agent;
-	ArrayList<RemoteDevice> discoveredDevices; //lista przechowuj¹ca adresy wykrytych urz¹dzeñ
-	ArrayList<String> friendlyNames; //lista przechowuj¹ca nazwy wykrytych urz¹dzeñ
+	ArrayList<DiscoveredDevice> discoveredDevices; //tablica przechowuj¹ca wykryte urz¹dzenia
 	boolean allDiscovered;
-	String url = "btspp://B827EB0A77A7:1";
-	//pózniej stworzyæ listê z adresami url
 	
 	byte[] bytesArray;
 	byte[] frame;
@@ -30,8 +27,7 @@ public class Bluetooth implements DiscoveryListener {
 			e.printStackTrace();
 		} 
 		this.agent = localDevice.getDiscoveryAgent();
-		this.discoveredDevices = new ArrayList<RemoteDevice>();
-		this.friendlyNames = new ArrayList<String>();
+		this.discoveredDevices = new ArrayList<DiscoveredDevice>();
 		this.allDiscovered = false;
 	}
 	
@@ -45,8 +41,7 @@ public class Bluetooth implements DiscoveryListener {
 		} catch(IOException e) {
 			System.out.println("B³¹d odczytu nazwy urz¹dzenia");
 		}
-		discoveredDevices.add(remoteDevice);
-		friendlyNames.add(name);
+		discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
 		System.out.println("Wykryto urz¹dzenie. Adres: " + address + " Nazwa: " + name);
 			
 		synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
@@ -93,14 +88,14 @@ public class Bluetooth implements DiscoveryListener {
 		}	
 	}
 	
-	public void sendFile(File fileToSend) {
+	public void sendFile(File fileToSend, int deviceNumber) {
 		try {
 			FileInputStream is = new FileInputStream(fileToSend);
 			bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
 			is.close();
 			buildFrame(fileToSend);
 //			saveBytesToFile();
-			startBluetoothConnection();
+			startBluetoothConnection(deviceNumber);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -136,11 +131,12 @@ public class Bluetooth implements DiscoveryListener {
 		}
 	}
 	
-	public void startBluetoothConnection() {
+	public void startBluetoothConnection(int deviceNumber) {
 		//otwarcie po³¹czenie i zapisanie tablicy bajtów do strumienia wyjœciowego
 		StreamConnection conn;
 		try {
-			conn = (StreamConnection) Connector.open(url);
+			String urlAddress = "btspp://" + discoveredDevices.get(deviceNumber).getRemoteDevice() + ":1";
+			conn = (StreamConnection) Connector.open(urlAddress);
 			OutputStream os = conn.openOutputStream();
 			os.write(frame);
 			os.close();

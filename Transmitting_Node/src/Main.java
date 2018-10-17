@@ -55,7 +55,8 @@ public class Main {
 		frame.getSendingButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
-				bluetooth.sendFile(fileToSend);
+				int deviceNumber = frame.getDeviceNumber(); //pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
+				bluetooth.sendFile(fileToSend, deviceNumber);
 			}	
 		});	
 		

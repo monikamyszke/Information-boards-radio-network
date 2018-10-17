@@ -39,6 +39,10 @@ public class AppWindow extends JFrame {
 		this.listOfdevices.addItem(name);
 	}
 	
+	public int getDeviceNumber(){
+		return this.listOfdevices.getSelectedIndex();
+	}
+	
 	public JButton getFileChooserButton() {
 		return chooseFileButton;
 	}
