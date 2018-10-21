@@ -44,17 +44,7 @@ public class Bluetooth {
 //				System.out.println(mode);
 //				TimeUnit.SECONDS.sleep(30);
 //				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//	
+//				System.out.println(mode);	
 //			} catch (InterruptedException | BluetoothStateException e) {
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
@@ -105,9 +95,9 @@ public class Bluetooth {
 			e.printStackTrace();
 		}
 		System.arraycopy(frame, fileNameLength + 5, bytesArray, 0, bytesArray.length);
-		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki: " + (numberOfBytes + 4));
+		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki: " + (numberOfBytes));
 		
-		if(frame.length == (numberOfBytes + 4)) {
+		if(frame.length == numberOfBytes) {
 			System.out.println("Dane odebrano poprawnie");
 		}
 		else {

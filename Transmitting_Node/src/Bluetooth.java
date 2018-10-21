@@ -49,22 +49,21 @@ public class Bluetooth implements DiscoveryListener {
 		//ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
 		//sprawdzenie, czy tablica jest w zasiêgu
 		if(address.startsWith("B827EB")) {
-			StreamConnection conn;
-			try {
-				String urlAddress = "btspp://" + address + ":1";
-				conn = (StreamConnection) Connector.open(urlAddress);
-				conn.close();
+//			StreamConnection conn;
+//			try {
+//				String urlAddress = "btspp://" + address + ":1";
+//				conn = (StreamConnection) Connector.open(urlAddress);
+//				conn.close();
 				discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
-				System.out.println("Nawi¹zano po³¹czenie");
-			} catch (IOException e) {
-				System.out.println("Tablica poza zasiêgiem");
-			}
-		}
-			
-		synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
-			try {
-				this.notifyAll();
-			} catch(Exception e) {};
+//				System.out.println("Nawi¹zano po³¹czenie");
+				synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
+					try {
+						this.notifyAll();
+					} catch(Exception e) {};
+				}
+//			} catch (IOException e) {
+//				System.out.println("Tablica poza zasiêgiem");
+//			}
 		}
 	}
 		
@@ -74,8 +73,8 @@ public class Bluetooth implements DiscoveryListener {
 		System.out.println("Wyszukiwanie urz¹dzeñ zakoñczone.");
 		synchronized(this) {
 			try {
-				this.notifyAll();
 				allDiscovered = true;
+				this.notifyAll();
 			} catch(Exception e) {};
 		}
 	}
@@ -101,7 +100,6 @@ public class Bluetooth implements DiscoveryListener {
 //		if(responseCode == SERVICE_SEARCH_DEVICE_NOT_REACHABLE) {
 //			System.out.println("Urz¹dzenie poza zasiêgiem");
 //		}
-		
 		synchronized(this) {
 			try {
 				this.notifyAll();
@@ -142,15 +140,15 @@ public class Bluetooth implements DiscoveryListener {
 		public void buildFrame(File fileToSend) {
 			String fileName = new String(fileToSend.getName());
 			byte[] fileNameBytes = null;
-			int numberOfBytes; //liczba bajtów, na któr¹ sk³ada siê 1 + liczba bajtów nazwy pliku + liczba bajtów danych
+			int numberOfBytes; //liczba bajtów, na któr¹ sk³ada siê 4 + 1 + liczba bajtów nazwy pliku + liczba bajtów danych
 			try {
 				fileNameBytes = fileName.getBytes("UTF-8");
 			} catch (UnsupportedEncodingException e) {
 				e.printStackTrace();
 			}
-			numberOfBytes = 1 + fileNameBytes.length + bytesArray.length;
-			frame = new byte[4 + numberOfBytes]; //ramka zawiera na pocz¹tku 4-bajtowe pole przeznaczone do zapisu liczby bajtów do wys³ania (maksymalnie 2^32 bajtów)
-			byte[]numberOfBytesArray = ByteBuffer.allocate(4).putInt(numberOfBytes).array();
+			numberOfBytes = 4 + 1 + fileNameBytes.length + bytesArray.length;
+			frame = new byte[numberOfBytes]; //ramka zawiera na pocz¹tku 4-bajtowe pole przeznaczone do zapisu liczby bajtów do wys³ania (maksymalnie 2^32 bajtów)
+			byte[] numberOfBytesArray = ByteBuffer.allocate(4).putInt(numberOfBytes).array();
 			//uzupe³nienie odpowiednich pól ramki
 			System.arraycopy(numberOfBytesArray, 0, frame, 0, 4);
 			frame[4] = (byte) fileNameBytes.length;

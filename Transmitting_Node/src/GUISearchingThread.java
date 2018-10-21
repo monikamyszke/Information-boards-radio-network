@@ -1,10 +1,6 @@
 /*W¹tek stworzony w celu wyœwietlania urz¹dzeñ podczas ich wyszukiwania w oknie aplikacji
  * - nie powoduje blokowania GUI*/
 
-import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.RemoteDevice;
-import javax.bluetooth.UUID;
-
 public class GUISearchingThread implements Runnable {
 	
 	Bluetooth bluetooth;
@@ -32,9 +28,9 @@ public class GUISearchingThread implements Runnable {
 		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");
 		
 		//wyszukiwanie serwisów (nie jest to konieczne)
-		UUID[] uuidSet = new UUID[1];
-		uuidSet[0] = new UUID(0x1101); // UUID SPP
-		int[] attrIdSet = new int[] {0x0100}; // atrybut - Service Name ID
+//		UUID[] uuidSet = new UUID[1];
+//		uuidSet[0] = new UUID(0x1101); // UUID SPP
+//		int[] attrIdSet = new int[] {0x0100}; // atrybut - Service Name ID
 //		System.out.println("Service discovery");
 //		
 //		for(int i=0; i<bluetooth.discoveredDevices.size(); i++) {

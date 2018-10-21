@@ -50,6 +50,7 @@ public class Main {
 				}
 			}
 		});		
+		
 		frame.getFileChooserButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
@@ -61,7 +62,6 @@ public class Main {
 					frame.getFileChooserButton().setText(fileName);
 				}
 			}
-			
 		});
 			
 		frame.getSendingButton().addActionListener(new ActionListener() {
