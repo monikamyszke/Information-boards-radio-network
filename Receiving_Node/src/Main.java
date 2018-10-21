@@ -1,5 +1,6 @@
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+//import java.awt.event.WindowAdapter;
+//import java.awt.event.WindowEvent;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.bluetooth.LocalDevice;
@@ -22,16 +23,16 @@ public class Main {
 			e.printStackTrace();
 		}
 		
-		//zablokowanie widocznoœci urz¹dzenia po wyjœciu z okna aplikacji
-		frame.addWindowListener(new WindowAdapter() {
-			public void windowClosing(WindowEvent we) {
-				try {
-					LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
-				} catch (BluetoothStateException e) {
-					e.printStackTrace();
-				}
-			}
-		});
+//		//zablokowanie widocznoœci urz¹dzenia po wyjœciu z okna aplikacji
+//		frame.addWindowListener(new WindowAdapter() {
+//			public void windowClosing(WindowEvent we) {
+//				try {
+//					LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
+//				} catch (BluetoothStateException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
 	
 		//zmiana trybu widocznoœci urz¹dzenia tak, aby by³o ono mo¿liwe do wykrycia przez ca³y czas dzia³ania aplikacji
 		try {

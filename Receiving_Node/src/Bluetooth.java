@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
 
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
@@ -23,12 +24,41 @@ public class Bluetooth {
 	
 	public void run() {
 		try {
+			System.out.println("Nas³uchujê");
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));//obiekt oczekuj¹cy po³¹czenia przychodz¹cego do serwera, reprezentuje nas³uchuj¹ce gniazdo
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
 		while(true) {
+//			try {
+//				int mode;
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//				TimeUnit.SECONDS.sleep(30);
+//				mode = LocalDevice.getLocalDevice().getDiscoverable();
+//				System.out.println(mode);
+//	
+//			} catch (InterruptedException | BluetoothStateException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			listenForConnection();
 		}
 	}
@@ -61,17 +91,28 @@ public class Bluetooth {
 	}
 	
 	public void decodeFrame() {
-		int fileNameLength = frame[0];
+		byte[] numberOfBytesArray = new byte[4];
+		System.arraycopy(frame, 0, numberOfBytesArray, 0, 4);
+		int numberOfBytes = ByteBuffer.wrap(numberOfBytesArray).getInt();
+		
+		int fileNameLength = frame[4];
 		fileNameBytes = new byte[fileNameLength];
-		bytesArray = new byte[frame.length - fileNameLength - 1];
-		System.arraycopy(frame, 1, fileNameBytes, 0, fileNameLength);
+		bytesArray = new byte[frame.length - fileNameLength - 5];
+		System.arraycopy(frame, 5, fileNameBytes, 0, fileNameLength);
 		try {
 			fileName = new String(fileNameBytes, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		System.arraycopy(frame, fileNameLength + 1, bytesArray, 0, bytesArray.length);
-		System.out.println("Zdekodowano ramkê");
+		System.arraycopy(frame, fileNameLength + 5, bytesArray, 0, bytesArray.length);
+		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki: " + (numberOfBytes + 4));
+		
+		if(frame.length == (numberOfBytes + 4)) {
+			System.out.println("Dane odebrano poprawnie");
+		}
+		else {
+			System.out.println("Podczas po³¹czenia wyst¹pi³ b³¹d");
+		}
 	}
 	
 	public void saveFile() {

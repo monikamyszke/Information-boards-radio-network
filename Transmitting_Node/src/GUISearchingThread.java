@@ -29,27 +29,26 @@ public class GUISearchingThread implements Runnable {
 				}
 			} catch(Exception e) {}
 		}
-		
 		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");
 		
 		//wyszukiwanie serwisów (nie jest to konieczne)
 		UUID[] uuidSet = new UUID[1];
 		uuidSet[0] = new UUID(0x1101); // UUID SPP
 		int[] attrIdSet = new int[] {0x0100}; // atrybut - Service Name ID
-		System.out.println("Service discovery");
-		
-		for(int i=0; i<bluetooth.discoveredDevices.size(); i++) {
-			RemoteDevice remoteDevice = bluetooth.discoveredDevices.get(i).getRemoteDevice();
-			try {
-				bluetooth.agent.searchServices(attrIdSet, uuidSet, remoteDevice, bluetooth);
-				synchronized(bluetooth) { 
-					try {
-						bluetooth.wait(); 
-					} catch(Exception e) {}
-				}
-			} catch (BluetoothStateException e1) {
-				e1.printStackTrace();
-			}
-		}		
+//		System.out.println("Service discovery");
+//		
+//		for(int i=0; i<bluetooth.discoveredDevices.size(); i++) {
+//			RemoteDevice remoteDevice = bluetooth.discoveredDevices.get(i).getRemoteDevice();
+//			try {
+//				bluetooth.agent.searchServices(attrIdSet, uuidSet, remoteDevice, bluetooth);
+//				synchronized(bluetooth) { 
+//					try {
+//						bluetooth.wait(); 
+//					} catch(Exception e) {}
+//				}
+//			} catch (BluetoothStateException e1) {
+//				e1.printStackTrace();
+//			}
+//		}		
 	}
 }

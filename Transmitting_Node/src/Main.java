@@ -2,7 +2,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
 import javax.swing.JFileChooser;
@@ -15,7 +14,7 @@ public class Main {
 	public static void main(String[] args) throws BluetoothStateException {
 		
 		Bluetooth bluetooth = new Bluetooth();
-		
+
 		//utworzenie okna aplikacji
 		try {
 			frame = new AppWindow();
