@@ -68,11 +68,16 @@ public class Bluetooth {
 		try {
 			is = conn.openInputStream(); //otwarcie strumienia wejœciowego danych
 			frame = IOUtils.toByteArray(is); //zapisanie danych ze strumienia do tablicy bajtów
-			System.out.println("Odebrano plik");
 			is.close();
-//			saveBytesToFile();
-			decodeFrame();
-			saveFile();
+			if(frame.length == 0) {
+				System.out.println("It's a ping!");
+			}
+			else {
+				System.out.println("Odebrano plik");
+//				saveBytesToFile();
+				decodeFrame();
+				saveFile();
+			}
 			conn.close();
 			System.out.println("Zakoñczono po³¹czenie");
 		} catch (IOException e) {

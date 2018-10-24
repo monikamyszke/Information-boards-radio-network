@@ -6,6 +6,8 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import javax.bluetooth.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
@@ -49,21 +51,19 @@ public class Bluetooth implements DiscoveryListener {
 		//ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
 		//sprawdzenie, czy tablica jest w zasiêgu
 		if(address.startsWith("B827EB")) {
-//			StreamConnection conn;
-//			try {
-//				String urlAddress = "btspp://" + address + ":1";
-//				conn = (StreamConnection) Connector.open(urlAddress);
-//				conn.close();
+			boolean isNearby = sendPing(address);
+			if(isNearby == true) {
 				discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
-//				System.out.println("Nawi¹zano po³¹czenie");
+				System.out.println("Nawi¹zano po³¹czenie");
 				synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
 					try {
 						this.notifyAll();
 					} catch(Exception e) {};
-				}
-//			} catch (IOException e) {
-//				System.out.println("Tablica poza zasiêgiem");
-//			}
+				}	
+			}
+			else {
+				System.out.println("Tablica poza zasiêgiem");
+			}				
 		}
 	}
 		
@@ -120,6 +120,25 @@ public class Bluetooth implements DiscoveryListener {
 				e.printStackTrace();
 			}
 		}
+		
+	}
+	
+	public boolean sendPing(String address) {
+		StreamConnection conn;
+		String urlAddress = "btspp://" + address + ":1";
+			try {
+				conn = (StreamConnection) Connector.open(urlAddress);
+				try {
+					TimeUnit.MILLISECONDS.sleep(100);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				conn.close();
+				return true;
+			} catch (IOException e1) {
+				return false;
+			}
+			
 		
 	}
 	
@@ -181,6 +200,11 @@ public class Bluetooth implements DiscoveryListener {
 			OutputStream os = conn.openOutputStream();
 			os.write(frame);
 			os.close();
+			try {
+			TimeUnit.MILLISECONDS.sleep(100);
+			} catch (Exception e) {
+			e.printStackTrace();
+			}
 			conn.close();
 			System.out.println("Wys³ano " + frame.length + " B danych");
 			System.out.println("Zamkniêto po³¹czenie");
