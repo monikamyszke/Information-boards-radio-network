@@ -2,10 +2,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-
+import java.util.concurrent.TimeUnit;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
@@ -21,6 +22,8 @@ public class Bluetooth {
 	byte[] fileNameBytes;
 	byte[] bytesArray;
 	byte[] frame;
+	String responseAddress;
+	byte[] ack;
 	
 	public void run() {
 		try {
@@ -31,24 +34,6 @@ public class Bluetooth {
 		}
 		
 		while(true) {
-//			try {
-//				int mode;
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);
-//				TimeUnit.SECONDS.sleep(30);
-//				mode = LocalDevice.getLocalDevice().getDiscoverable();
-//				System.out.println(mode);	
-//			} catch (InterruptedException | BluetoothStateException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
 			listenForConnection();
 		}
 	}
@@ -71,15 +56,18 @@ public class Bluetooth {
 			is.close();
 			if(frame.length == 0) {
 				System.out.println("It's a ping!");
+				conn.close();
 			}
 			else {
 				System.out.println("Odebrano plik");
+				responseAddress = "btspp://40E230F23BCE:1"; //wpisany na sta³e adres mojego komputera
 //				saveBytesToFile();
 				decodeFrame();
 				saveFile();
+				conn.close();
+				System.out.println("Zakoñczono po³¹czenie");		
+				sendResponse(responseAddress);
 			}
-			conn.close();
-			System.out.println("Zakoñczono po³¹czenie");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,12 +89,14 @@ public class Bluetooth {
 		}
 		System.arraycopy(frame, fileNameLength + 5, bytesArray, 0, bytesArray.length);
 		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki: " + (numberOfBytes));
-		
+		ack = new byte[1];
 		if(frame.length == numberOfBytes) {
 			System.out.println("Dane odebrano poprawnie");
+			ack[0] = 1;
 		}
 		else {
 			System.out.println("Podczas po³¹czenia wyst¹pi³ b³¹d");
+			ack[0] = 0;
 		}
 	}
 	
@@ -137,5 +127,30 @@ public class Bluetooth {
 			e.printStackTrace();
 		}
 	}
+
+	public void sendResponse(String address) {
+		
+		StreamConnection conn;
+			try {
+				conn = (StreamConnection) Connector.open(address);
+				OutputStream os = conn.openOutputStream();
+				os.write(ack);
+				try {
+					TimeUnit.MILLISECONDS.sleep(100);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				os.close();
+				try {
+					TimeUnit.MILLISECONDS.sleep(100);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				conn.close();
+				System.out.println("Wys³ano odpowiedz");
+			} catch (IOException e1) {
+			}
+	}
+
 
 }

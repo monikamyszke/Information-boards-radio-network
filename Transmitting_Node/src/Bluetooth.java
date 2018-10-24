@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -11,6 +12,8 @@ import java.util.concurrent.TimeUnit;
 import javax.bluetooth.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
+import javax.microedition.io.StreamConnectionNotifier;
+
 import org.apache.commons.io.IOUtils;
 
 import com.intel.bluetooth.RemoteDeviceHelper;
@@ -24,6 +27,9 @@ public class Bluetooth implements DiscoveryListener {
 	
 	byte[] bytesArray;
 	byte[] frame;
+	byte[] ack;
+	
+	StreamConnectionNotifier notifier;
 	
 	public Bluetooth(){
 		try {
@@ -138,7 +144,6 @@ public class Bluetooth implements DiscoveryListener {
 			} catch (IOException e1) {
 				return false;
 			}
-			
 		
 	}
 	
@@ -150,6 +155,7 @@ public class Bluetooth implements DiscoveryListener {
 			buildFrame(fileToSend);
 //			saveBytesToFile();
 			startBluetoothConnection(deviceNumber);
+			waitForResponse();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -211,6 +217,40 @@ public class Bluetooth implements DiscoveryListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}	
+	}
+	
+	public void waitForResponse() {
+		try {
+			System.out.println("Czekam na odpowiedz");
+			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));			
+			StreamConnection conn;
+			conn = (StreamConnection)notifier.acceptAndOpen();
+			System.out.println("Otwarto po³¹czenie");
+			getResponse(conn);
+			conn.close();
+			notifier.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void getResponse(StreamConnection conn) {
+		InputStream is;
+		try {
+			is = conn.openInputStream();
+			ack = IOUtils.toByteArray(is);
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+
+		if(ack[0] == 1) {
+			System.out.println("Transmisja danych przebieg³a pomyœlnie");
+		}
+		else {
+			System.out.println("Podczas transmisji wyst¹pi³ b³¹d");
+		}
+		
 	}
 		
 }

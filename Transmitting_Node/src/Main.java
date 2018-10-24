@@ -14,7 +14,7 @@ public class Main {
 	public static void main(String[] args) throws BluetoothStateException {
 		
 		Bluetooth bluetooth = new Bluetooth();
-
+		
 		//utworzenie okna aplikacji
 		try {
 			frame = new AppWindow();
