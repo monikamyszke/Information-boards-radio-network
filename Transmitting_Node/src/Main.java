@@ -2,9 +2,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
+
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.UUID;
 import javax.swing.JFileChooser;
 
 public class Main {
@@ -25,7 +26,7 @@ public class Main {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+	 
 		frame.getSearchingButton().addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent a) {
@@ -69,7 +70,15 @@ public class Main {
 			@Override
 			public void actionPerformed(ActionEvent a) {
 				int deviceNumber = frame.getDeviceNumber(); //pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
-				bluetooth.sendFile(fileToSend, deviceNumber);
+				for(int i = 0; i < 100; i++) {
+					bluetooth.sendFile(fileToSend, deviceNumber); //wys³anie pliku 100 razy
+					try {
+						TimeUnit.SECONDS.sleep(5);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					i++;
+				}
 			}	
 		});	
 		

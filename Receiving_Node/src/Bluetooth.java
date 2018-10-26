@@ -1,14 +1,16 @@
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
-import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
@@ -16,12 +18,10 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 import org.apache.commons.io.IOUtils;
 
-import com.intel.bluetooth.RemoteDeviceHelper;
-
 public class Bluetooth {
 	
 	StreamConnectionNotifier notifier;
-	StreamConnection conn1;
+	StreamConnection conn;
 	File receivedFile;
 	String fileName;
 	byte[] fileNameBytes;
@@ -29,13 +29,25 @@ public class Bluetooth {
 	byte[] frame;
 	String responseAddress;
 	byte[] ack;
-	LocalDevice locDevice;
-	DiscoveryAgent agent;
+
 	RemoteDevice device;
-	String add;
+	
+	Date date;
+	DateFormat dateFormat;
+    String time1;
+    
+    FileWriter fileWriter;
+    int counter;
 	
 	public void run() {
-
+		dateFormat = new SimpleDateFormat("HH:mm:ss");
+		counter = 1;
+//		try {
+//			this.fileWriter = new FileWriter("/home/pi/Desktop/testy_RPi.csv");
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+		
 		try {
 			System.out.println("Nas³uchujê");
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));//obiekt oczekuj¹cy po³¹czenia przychodz¹cego do serwera, reprezentuje nas³uchuj¹ce gniazdo
@@ -50,11 +62,10 @@ public class Bluetooth {
 	
 	public void listenForConnection() {
 		try {
-			conn1 = (StreamConnection)notifier.acceptAndOpen(); //akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
-			RemoteDevice device = RemoteDevice.getRemoteDevice(conn1);
-			add = device.getBluetoothAddress();
-			System.out.println(add);
+			conn = (StreamConnection)notifier.acceptAndOpen(); //akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
 			System.out.println("Otwarto po³¹czenie");
+			RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
+			responseAddress = "btspp://" + device.getBluetoothAddress() + ":6"; 
 			receiveData();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -64,25 +75,25 @@ public class Bluetooth {
 	public void receiveData() {
 		InputStream is;
 		try {
-			is = conn1.openInputStream(); //otwarcie strumienia wejœciowego danych
+			is = conn.openInputStream(); //otwarcie strumienia wejœciowego danych
 			frame = IOUtils.toByteArray(is); //zapisanie danych ze strumienia do tablicy bajtów
-	//		is.close();
+			is.close();
 			if(frame.length == 0) {
 				System.out.println("It's a ping!");
-				conn1.close();
+				conn.close();
 			}
 			else {
 				System.out.println("Odebrano plik");
-//				RemoteDevice device = RemoteDevice.getRemoteDevice(conn1);
-//				String add = RemoteDevice.getRemoteDevice(conn1).toString()
-//				String add = device.getBluetoothAddress();
-				responseAddress = "btspp://" + add + ":6"; //wpisany na sta³e adres mojego komputera
-				is.close();
+				conn.close();
 //				saveBytesToFile();
 				decodeFrame();
 				saveFile();
-				conn1.close();
-				System.out.println("Zakoñczono po³¹czenie");		
+				
+				//czas ODEBRANIA I ODTWORZENIA PLIKU
+				date = new Date();
+		        time1 = dateFormat.format(date);
+				System.out.println(time1);
+				
 				sendResponse(responseAddress);
 			}
 		} catch (IOException e) {
@@ -94,7 +105,6 @@ public class Bluetooth {
 		byte[] numberOfBytesArray = new byte[4];
 		System.arraycopy(frame, 0, numberOfBytesArray, 0, 4);
 		int numberOfBytes = ByteBuffer.wrap(numberOfBytesArray).getInt();
-		
 		int fileNameLength = frame[4];
 		fileNameBytes = new byte[fileNameLength];
 		bytesArray = new byte[frame.length - fileNameLength - 5];
@@ -146,17 +156,11 @@ public class Bluetooth {
 	}
 
 	public void sendResponse(String address) {
-			
 			StreamConnection conn1;
 			try {
 				conn1 = (StreamConnection) Connector.open(address);
 				OutputStream os = conn1.openOutputStream();
 				os.write(ack);
-				try {
-					TimeUnit.MILLISECONDS.sleep(100);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
 				os.close();
 				try {
 					TimeUnit.MILLISECONDS.sleep(100);
@@ -167,6 +171,20 @@ public class Bluetooth {
 				System.out.println("Wys³ano odpowiedz");
 			} catch (IOException e1) {
 			}
+			
+			// zapis czasu do pliku
+//			try {
+//				fileWriter.append(time1);
+//				fileWriter.append("\n");
+//				fileWriter.flush();
+//				counter = counter + 1;
+//				if(counter == 100) {
+//					fileWriter.close();
+//				}
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+
 	}
 
 }

@@ -14,25 +14,14 @@ public class Main {
 		Bluetooth bluetooth = new Bluetooth();
 		
 		//utworzenie okna aplikacji
-		try {
-			frame = new AppWindow();
-			frame.setVisible(true);
-			frame.setResizable(true);
-			frame.setSize(1000, 600);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-//		//zablokowanie widocznoœci urz¹dzenia po wyjœciu z okna aplikacji
-//		frame.addWindowListener(new WindowAdapter() {
-//			public void windowClosing(WindowEvent we) {
-//				try {
-//					LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.NOT_DISCOVERABLE);
-//				} catch (BluetoothStateException e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
+//		try {
+//			frame = new AppWindow();
+//			frame.setVisible(true);
+//			frame.setResizable(true);
+//			frame.setSize(1000, 600);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	
 		//zmiana trybu widocznoœci urz¹dzenia tak, aby by³o ono mo¿liwe do wykrycia przez ca³y czas dzia³ania aplikacji
 		try {
@@ -46,7 +35,7 @@ public class Main {
 		}
 		
 		bluetooth.run();
-	
+
 	}
 
 }
