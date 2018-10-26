@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import javax.bluetooth.BluetoothStateException;
 import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.UUID;
 import javax.swing.JFileChooser;
 
 public class Main {

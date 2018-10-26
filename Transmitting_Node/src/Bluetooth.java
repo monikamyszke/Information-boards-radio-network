@@ -46,6 +46,7 @@ public class Bluetooth implements DiscoveryListener {
 	@Override
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
 		String address = remoteDevice.getBluetoothAddress();
+		
 		String name = null;
 		try {
 			name = remoteDevice.getFriendlyName(true); //zapytanie urz¹dzenia o nazwê ('true' - zawsze pytaj)
@@ -126,7 +127,6 @@ public class Bluetooth implements DiscoveryListener {
 				e.printStackTrace();
 			}
 		}
-		
 	}
 	
 	public boolean sendPing(String address) {
