@@ -71,13 +71,12 @@ public class Main {
 			public void actionPerformed(ActionEvent a) {
 				int deviceNumber = frame.getDeviceNumber(); //pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
 				for(int i = 0; i < 100; i++) {
-					bluetooth.sendFile(fileToSend, deviceNumber); //wys³anie pliku 100 razy
+					bluetooth.sendFile(fileToSend, deviceNumber); //wys³anie pliku 10 razy
 					try {
-						TimeUnit.SECONDS.sleep(5);
+						TimeUnit.SECONDS.sleep(5); //5 sekund pauzy przed wys³aniem kolejnego
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					i++;
 				}
 			}	
 		});	

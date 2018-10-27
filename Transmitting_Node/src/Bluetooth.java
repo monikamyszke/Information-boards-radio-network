@@ -53,11 +53,11 @@ public class Bluetooth implements DiscoveryListener {
 		this.discoveredDevices = new ArrayList<DiscoveredDevice>();
 		this.allDiscovered = false;
 		this.dateFormat = new SimpleDateFormat("HH:mm:ss");
-//		try {
-//			this.fileWriter = new FileWriter("testy_PC.csv");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			this.fileWriter = new FileWriter("testy_PC.csv");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		this.counter = 1;
 	}
 	
@@ -244,6 +244,7 @@ public class Bluetooth implements DiscoveryListener {
 	public void waitForResponse() {
 		try {
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));			
+			System.out.println("Czekam na odpowiedz");
 			StreamConnection conn;
 			conn = (StreamConnection)notifier.acceptAndOpen();
 			getResponse(conn);
@@ -276,19 +277,19 @@ public class Bluetooth implements DiscoveryListener {
 		}
 		
 		//zapis czasów do pliku
-//		try {
-//			fileWriter.append(time1);
-//			fileWriter.append(";");
-//			fileWriter.append(time2);
-//			fileWriter.append("\n");
-//			fileWriter.flush();
-//			counter = counter + 1;
-//			if(counter == 100) {
-//				fileWriter.close();
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			fileWriter.append(time1);
+			fileWriter.append(";");
+			fileWriter.append(time2);
+			fileWriter.append("\n");
+			fileWriter.flush();
+			counter = counter + 1;
+			if(counter == 100) {
+				fileWriter.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 	}
 		

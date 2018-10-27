@@ -42,11 +42,11 @@ public class Bluetooth {
 	public void run() {
 		dateFormat = new SimpleDateFormat("HH:mm:ss");
 		counter = 1;
-//		try {
-//			this.fileWriter = new FileWriter("/home/pi/Desktop/testy_RPi.csv");
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+		try {
+			this.fileWriter = new FileWriter("/home/pi/Desktop/testy_RPi.csv");
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		try {
 			System.out.println("Nas³uchujê");
@@ -157,33 +157,45 @@ public class Bluetooth {
 
 	public void sendResponse(String address) {
 			StreamConnection conn1;
-			try {
-				conn1 = (StreamConnection) Connector.open(address);
-				OutputStream os = conn1.openOutputStream();
-				os.write(ack);
-				os.close();
+			boolean success = false;
+			
+			while(!success) {
 				try {
-					TimeUnit.MILLISECONDS.sleep(100);
-				} catch (Exception e) {
-					e.printStackTrace();
+					try {
+						TimeUnit.MILLISECONDS.sleep(100); //opóznienie w wys³aniu odpowiedzi
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					conn1 = (StreamConnection) Connector.open(address);
+					OutputStream os = conn1.openOutputStream();
+					os.write(ack);
+					os.close();
+					try {
+						TimeUnit.MILLISECONDS.sleep(100);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					conn1.close();
+					System.out.println("Wys³ano odpowiedz");
+					success = true;
+				} catch (IOException e1) {
+					success = false;
+					e1.printStackTrace();
 				}
-				conn1.close();
-				System.out.println("Wys³ano odpowiedz");
-			} catch (IOException e1) {
 			}
 			
 			// zapis czasu do pliku
-//			try {
-//				fileWriter.append(time1);
-//				fileWriter.append("\n");
-//				fileWriter.flush();
-//				counter = counter + 1;
-//				if(counter == 100) {
-//					fileWriter.close();
-//				}
-//			} catch (IOException e) {
-//				e.printStackTrace();
-//			}
+			try {
+				fileWriter.append(time1);
+				fileWriter.append("\n");
+				fileWriter.flush();
+				counter = counter + 1;
+				if(counter == 100) {
+					fileWriter.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 	}
 
