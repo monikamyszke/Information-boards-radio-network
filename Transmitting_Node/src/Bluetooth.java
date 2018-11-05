@@ -1,16 +1,12 @@
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import javax.bluetooth.*;
@@ -32,14 +28,6 @@ public class Bluetooth implements DiscoveryListener {
 	byte[] bytesArray;
 	byte[] frame;
 	byte[] ack;
-	
-	Date date;
-	DateFormat dateFormat;
-    String time1;
-	String time2;
-	
-	FileWriter fileWriter;
-	int counter;
 
 	StreamConnectionNotifier notifier;
 	
@@ -52,13 +40,6 @@ public class Bluetooth implements DiscoveryListener {
 		this.agent = localDevice.getDiscoveryAgent();
 		this.discoveredDevices = new ArrayList<DiscoveredDevice>();
 		this.allDiscovered = false;
-		this.dateFormat = new SimpleDateFormat("HH:mm:ss");
-		try {
-			this.fileWriter = new FileWriter("testy_PC.csv");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		this.counter = 1;
 	}
 	
 	//funkcja wywo³ywana w chwili wykrycia urz¹dzenia
@@ -123,9 +104,6 @@ public class Bluetooth implements DiscoveryListener {
 	//funkcja wywo³ywana w chwili zakoñczenia wykrywania serwisów
 	@Override
 	public void serviceSearchCompleted(int transID, int responseCode) {
-//		if(responseCode == SERVICE_SEARCH_DEVICE_NOT_REACHABLE) {
-//			System.out.println("Urz¹dzenie poza zasiêgiem");
-//		}
 		synchronized(this) {
 			try {
 				this.notifyAll();
@@ -167,10 +145,6 @@ public class Bluetooth implements DiscoveryListener {
 	
 	public void sendFile(File fileToSend, int deviceNumber) {
 		try {
-			//czas WYS£ANIA PLIKU
-			date = new Date();
-	        time1 = dateFormat.format(date);
-			System.out.println(time1);
 			FileInputStream is = new FileInputStream(fileToSend);
 			bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
 			is.close();
@@ -264,31 +238,12 @@ public class Bluetooth implements DiscoveryListener {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
-		//czas OTRZYMANIA ODPOWIEDZI
-		date = new Date();
-        String time2 = dateFormat.format(date);
-		System.out.println(time2);
 		
 		if(ack[0] == 1) {
 			System.out.println("Transmisja danych przebieg³a pomyœlnie");
 		}
 		else {
 			System.out.println("Podczas transmisji wyst¹pi³ b³¹d");
-		}
-		
-		//zapis czasów do pliku
-		try {
-			fileWriter.append(time1);
-			fileWriter.append(";");
-			fileWriter.append(time2);
-			fileWriter.append("\n");
-			fileWriter.flush();
-			counter = counter + 1;
-			if(counter == 100) {
-				fileWriter.close();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 		
 	}

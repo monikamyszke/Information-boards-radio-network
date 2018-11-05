@@ -1,15 +1,11 @@
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 import javax.bluetooth.RemoteDevice;
 import javax.bluetooth.UUID;
@@ -32,21 +28,15 @@ public class Bluetooth {
 
 	RemoteDevice device;
 	
-	Date date;
-	DateFormat dateFormat;
-    String time1;
-    
-    FileWriter fileWriter;
-    int counter;
-	
 	public void run() {
-		dateFormat = new SimpleDateFormat("HH:mm:ss");
-		counter = 1;
-		try {
-			this.fileWriter = new FileWriter("/home/pi/Desktop/testy_RPi.csv");
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		
+//		String[] args = new String[] {"sudo", "hciconfig", "hci0", "piscan"};
+//		try {
+//			Process proc = new ProcessBuilder(args).start();
+//		} catch (IOException e2) {
+//			// TODO Auto-generated catch block
+//			e2.printStackTrace();
+//		}
 		
 		try {
 			System.out.println("Nas³uchujê");
@@ -88,11 +78,6 @@ public class Bluetooth {
 //				saveBytesToFile();
 				decodeFrame();
 				saveFile();
-				
-				//czas ODEBRANIA I ODTWORZENIA PLIKU
-				date = new Date();
-		        time1 = dateFormat.format(date);
-				System.out.println(time1);
 				
 				sendResponse(responseAddress);
 			}
@@ -157,9 +142,7 @@ public class Bluetooth {
 
 	public void sendResponse(String address) {
 			StreamConnection conn1;
-			boolean success = false;
-			
-			while(!success) {
+
 				try {
 					try {
 						TimeUnit.MILLISECONDS.sleep(100); //opóznienie w wys³aniu odpowiedzi
@@ -177,25 +160,10 @@ public class Bluetooth {
 					}
 					conn1.close();
 					System.out.println("Wys³ano odpowiedz");
-					success = true;
 				} catch (IOException e1) {
-					success = false;
 					e1.printStackTrace();
 				}
-			}
 			
-			// zapis czasu do pliku
-			try {
-				fileWriter.append(time1);
-				fileWriter.append("\n");
-				fileWriter.flush();
-				counter = counter + 1;
-				if(counter == 100) {
-					fileWriter.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 	}
 
