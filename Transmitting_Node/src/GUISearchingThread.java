@@ -16,6 +16,8 @@ public class GUISearchingThread implements Runnable {
 	public void run() {
 		synchronized(bluetooth) { //synchronizacja w¹tków
 			try {
+				frame.clearLabel();
+				frame.clearListOfDevices();
 				int i = 0;
 				while (bluetooth.allDiscovered == false) {
 					bluetooth.wait(); //czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()

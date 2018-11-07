@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -12,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import javax.bluetooth.*;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
-import javax.microedition.io.StreamConnectionNotifier;
 
 import org.apache.commons.io.IOUtils;
 
@@ -29,7 +27,7 @@ public class Bluetooth implements DiscoveryListener {
 	byte[] frame;
 	byte[] ack;
 
-	StreamConnectionNotifier notifier;
+	ResponseListener responseListener;
 	
 	public Bluetooth() {
 		try {
@@ -40,6 +38,9 @@ public class Bluetooth implements DiscoveryListener {
 		this.agent = localDevice.getDiscoveryAgent();
 		this.discoveredDevices = new ArrayList<DiscoveredDevice>();
 		this.allDiscovered = false;
+		
+		responseListener = new ResponseListener();
+		new Thread(responseListener).start();
 	}
 	
 	//funkcja wywo³ywana w chwili wykrycia urz¹dzenia
@@ -216,36 +217,34 @@ public class Bluetooth implements DiscoveryListener {
 	}
 	
 	public void waitForResponse() {
-		try {
-			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));			
-			System.out.println("Czekam na odpowiedz");
-			StreamConnection conn;
-			conn = (StreamConnection)notifier.acceptAndOpen();
-			getResponse(conn);
-			conn.close();
-			notifier.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		int timeout = 5;
+
+		while (timeout != 0 && responseListener.checkIfWasResponse() == false) {
+			try {
+				TimeUnit.SECONDS.sleep(1);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("Czekam...");
+			timeout --;
+		}
+
+		if (responseListener.checkIfWasResponse() == true) {
+			byte [] response = responseListener.getResponse();
+			checkResponse(response);
+		} else {
+			System.out.println("Brak odpowiedzi, czas min¹³...");
 		}
 	}
 	
-	public void getResponse(StreamConnection conn) {
-		InputStream is;
-		try {
-			is = conn.openInputStream();
-			ack = IOUtils.toByteArray(is);
-			is.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		
+	public void checkResponse(byte[] ack) {
+	
 		if(ack[0] == 1) {
 			System.out.println("Transmisja danych przebieg³a pomyœlnie");
 		}
 		else {
 			System.out.println("Podczas transmisji wyst¹pi³ b³¹d");
 		}
-		
 	}
 		
 }

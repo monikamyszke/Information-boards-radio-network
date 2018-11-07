@@ -36,12 +36,20 @@ public class AppWindow extends JFrame {
 		this.devices.setText(devices.getText() + "\n" + device);
 	}
 	
+	public void clearLabel() {
+		this.devices.setText("");
+	}
+	
 	public JButton getPairingButton() {
 		return pairingButton;
 	}
 	
 	public void setListOfDevices(String name) {
 		this.listOfdevices.addItem(name);
+	}
+	
+	public void clearListOfDevices() {
+		this.listOfdevices.removeAllItems();
 	}
 	
 	public int getDeviceNumber(){

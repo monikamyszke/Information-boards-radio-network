@@ -1,10 +1,7 @@
 //import java.awt.event.WindowAdapter;
 //import java.awt.event.WindowEvent;
 
-import javax.bluetooth.BluetoothStateException;
-import javax.bluetooth.DiscoveryAgent;
-import javax.bluetooth.LocalDevice;
-
+import java.io.IOException;
 public class Main {
 	
 	static AppWindow frame;
@@ -24,15 +21,27 @@ public class Main {
 //		}
 	
 		//zmiana trybu widocznoœci urz¹dzenia tak, aby by³o ono mo¿liwe do wykrycia przez ca³y czas dzia³ania aplikacji
+		String[] discoverableCommand = new String[] {"sudo", "hciconfig", "hci0", "piscan"};
 		try {
-			int mode = LocalDevice.getLocalDevice().getDiscoverable();
-			System.out.println(mode); //tryb po uruchomieniu aplikacji
-			LocalDevice.getLocalDevice().setDiscoverable(DiscoveryAgent.GIAC);
-			mode = LocalDevice.getLocalDevice().getDiscoverable();
-			System.out.println(mode); //tryb po powy¿szej zmianie
-		} catch (BluetoothStateException e1) {
-			e1.printStackTrace();
+			new ProcessBuilder(discoverableCommand).start();
+		} catch (IOException e2) {
+			e2.printStackTrace();
 		}
+		
+		//wy³¹czenie widocznoœci urz¹dzenia w momencie zakoñczenie dzia³ania programu
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				String[] nonDiscoverableCommand = new String[] {"sudo", "hciconfig", "hci0", "noscan"};
+				try {
+					new ProcessBuilder(nonDiscoverableCommand).start();
+				} catch (IOException e2) {
+					e2.printStackTrace();
+				}
+			}
+			
+		})
+		);
 		
 		bluetooth.run();
 

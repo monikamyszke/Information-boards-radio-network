@@ -30,14 +30,6 @@ public class Bluetooth {
 	
 	public void run() {
 		
-//		String[] args = new String[] {"sudo", "hciconfig", "hci0", "piscan"};
-//		try {
-//			Process proc = new ProcessBuilder(args).start();
-//		} catch (IOException e2) {
-//			// TODO Auto-generated catch block
-//			e2.printStackTrace();
-//		}
-		
 		try {
 			System.out.println("Nas³uchujê");
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID( 0x1101 ).toString( ));//obiekt oczekuj¹cy po³¹czenia przychodz¹cego do serwera, reprezentuje nas³uchuj¹ce gniazdo
@@ -100,7 +92,8 @@ public class Bluetooth {
 			e.printStackTrace();
 		}
 		System.arraycopy(frame, fileNameLength + 5, bytesArray, 0, bytesArray.length);
-		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki: " + (numberOfBytes));
+		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki w polu nag³ówka: " + (numberOfBytes));
+		System.out.println("D³ugoœæ ramki: " + frame.length);
 		ack = new byte[1];
 		if(frame.length == numberOfBytes) {
 			System.out.println("Dane odebrano poprawnie");
@@ -163,8 +156,6 @@ public class Bluetooth {
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
-			
-
 	}
 
 }
