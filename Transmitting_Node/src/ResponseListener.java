@@ -34,7 +34,6 @@ public class ResponseListener implements Runnable{
 				wasResponse = false;
 				StreamConnection conn;
 				conn = (StreamConnection)notifier.acceptAndOpen();
-				System.out.println("Otrzymano odpowiedz");
 				InputStream is;
 				try {
 	    			is = conn.openInputStream();
@@ -44,6 +43,7 @@ public class ResponseListener implements Runnable{
 	    			e.printStackTrace();
 	    		}
 				wasResponse = true;
+				System.out.println("Otrzymano odpowiedz");
 				conn.close();
 				
 				while(wasResponse == true);

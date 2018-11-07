@@ -22,7 +22,6 @@ public class AppWindow extends JFrame {
 	private Color mint = new Color(17, 151, 150);
 	
 	private JButton searchButton;
-	private JButton pairingButton;
 	private JTextPane devices;
 	private JComboBox<String> listOfdevices;
 	private JButton sendButton;
@@ -38,10 +37,6 @@ public class AppWindow extends JFrame {
 	
 	public void clearLabel() {
 		this.devices.setText("");
-	}
-	
-	public JButton getPairingButton() {
-		return pairingButton;
 	}
 	
 	public void setListOfDevices(String name) {
@@ -145,13 +140,6 @@ public class AppWindow extends JFrame {
 		devices.setEditable(false);
 		devices.setBackground(mint);
 		center.add(devices, BorderLayout.CENTER);
-		
-		pairingButton = new JButton("Paruj z urz¹dzeniem");
-		pairingButton.setFont(new Font("Ebrima", Font.BOLD, 13));
-		pairingButton.setFocusPainted(false);
-		pairingButton.setBackground(grey);
-		pairingButton.setForeground(white);
-		center.add(pairingButton, BorderLayout.SOUTH);
 	 
 		JPanel bottom = new JPanel();
 		bottom.setBorder(new EmptyBorder(40, 95, 90, 95));

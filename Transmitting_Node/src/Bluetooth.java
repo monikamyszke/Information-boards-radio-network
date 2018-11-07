@@ -14,8 +14,6 @@ import javax.microedition.io.StreamConnection;
 
 import org.apache.commons.io.IOUtils;
 
-import com.intel.bluetooth.RemoteDeviceHelper;
-
 public class Bluetooth implements DiscoveryListener {
 	
 	LocalDevice localDevice;
@@ -47,7 +45,6 @@ public class Bluetooth implements DiscoveryListener {
 	@Override
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
 		String address = remoteDevice.getBluetoothAddress();
-		
 		String name = null;
 		try {
 			name = remoteDevice.getFriendlyName(true); //zapytanie urz¹dzenia o nazwê ('true' - zawsze pytaj)
@@ -112,21 +109,6 @@ public class Bluetooth implements DiscoveryListener {
 		}	
 	}
 	
-	public void pairWithDevice(int deviceNumber) throws IOException {
-		RemoteDevice remoteDevice = discoveredDevices.get(deviceNumber).getRemoteDevice();
-		if(remoteDevice.isTrustedDevice()) {
-			System.out.println("Urz¹dzenia s¹ ju¿ sparowane");
-		}
-		else {
-			String PIN = "00000";
-			try {
-				RemoteDeviceHelper.authenticate(remoteDevice, PIN);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	public boolean sendPing(String address) {
 		StreamConnection conn;
 		String urlAddress = "btspp://" + address + ":1";
@@ -152,6 +134,7 @@ public class Bluetooth implements DiscoveryListener {
 			buildFrame(fileToSend);
 //			saveBytesToFile();
 			startBluetoothConnection(deviceNumber);
+			System.out.println("Czekam na odpowiedz");
 			waitForResponse();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -160,6 +143,7 @@ public class Bluetooth implements DiscoveryListener {
 	
 	//funkcja tworz¹ca ramkê - liczba bajtów do wys³ania + liczba bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
 		public void buildFrame(File fileToSend) {
+			System.out.println("Budujê ramkê");
 			String fileName = new String(fileToSend.getName());
 			byte[] fileNameBytes = null;
 			int numberOfBytes; //liczba bajtów, na któr¹ sk³ada siê 4 + 1 + liczba bajtów nazwy pliku + liczba bajtów danych
