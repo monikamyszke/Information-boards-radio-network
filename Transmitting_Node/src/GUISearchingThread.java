@@ -18,8 +18,10 @@ public class GUISearchingThread implements Runnable {
 				frame.clearListOfDevices();
 				int i = 0;
 				while (bluetooth.allDiscovered == false) {
-					frame.setLabel("Wykryto urz퉐zeni543544");
 					bluetooth.wait(); // czekanie na powiadomienie o wykryciu urz퉐zenia z metody deviceDiscovered()
+					if (bluetooth.allDiscovered == true) {
+						break;
+					}
 					frame.setLabel("Wykryto urz퉐zenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i).getRemoteDevice()+  "     Nazwa: " + bluetooth.discoveredDevices.get(i).getName());
 					frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); // dodanie urz퉐zenia do listy w GUI
 					i++;

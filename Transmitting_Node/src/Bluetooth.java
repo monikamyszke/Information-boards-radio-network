@@ -81,27 +81,14 @@ public class Bluetooth implements DiscoveryListener {
 		}
 	}
 
-	// funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu - UUID Serial Port Profile, czyli 0x1101)
+	// funkcja nieu¿ywana
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
-		for (int i = 0; i < serviceRecord.length; i++) {
-			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); // pobranie nazwy serwisu - wartoœci atrybutu o ID 0x0100
-			String connectionURL = serviceRecord[i].getConnectionURL(0, false);
-			if (serviceName != null) {
-				System.out.println((String)serviceName.getValue());
-			} else {
-				System.out.println("Nieznana us³uga");
-			}	
-			System.out.println(connectionURL);
-		}
+
 	}
 
-	// funkcja wywo³ywana w chwili zakoñczenia wykrywania serwisów
+	// funkcja nieu¿ywana
 	public void serviceSearchCompleted(int transID, int responseCode) {
-		synchronized(this) {
-			try {
-				this.notifyAll();
-			} catch(Exception e) {};	
-		}	
+	
 	}
 	
 	public boolean sendPing(String address) {

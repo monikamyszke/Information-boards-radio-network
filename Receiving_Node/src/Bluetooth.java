@@ -110,7 +110,7 @@ public class Bluetooth {
 	public void saveFile(String fileName, byte[] bytesArray) {
 		FileOutputStream os;
 		try {
-			os = new FileOutputStream("/home/pi/Desktop/" + fileName);
+			os = new FileOutputStream("/home/pi/Desktop/Received Files/" + fileName);
 			os.write(bytesArray); //zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
 			os.close();
 			System.out.println("Zapisano plik");

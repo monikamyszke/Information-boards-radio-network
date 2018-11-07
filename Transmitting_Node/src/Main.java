@@ -27,6 +27,7 @@ public class Main {
 		frame.getSearchingButton().addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent a) {
 				try {
+					bluetooth.discoveredDevices.clear();
 					bluetooth.allDiscovered = false;
 					System.out.println("Device discovery");
 					bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); // rozpoczêcie wyszukiwania urz¹dzeñ
