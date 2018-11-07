@@ -17,5 +17,4 @@ public class DiscoveredDevice {
 	public String getName() {
 		return name;
 	}
-	
 }

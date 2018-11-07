@@ -25,40 +25,36 @@ public class Main {
 		}
 	 
 		frame.getSearchingButton().addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent a) {
 				try {
 					bluetooth.allDiscovered = false;
 					System.out.println("Device discovery");
-					bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); //rozpoczêcie wyszukiwania urz¹dzeñ
+					bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); // rozpoczêcie wyszukiwania urz¹dzeñ
 					Thread searcher = new Thread(new GUISearchingThread(bluetooth, frame));
 					searcher.start();
-				} catch(BluetoothStateException e) {
+				} catch (BluetoothStateException e) {
 					System.out.println(e.toString());
 				}
 			}
 		});	
 		
 		frame.getFileChooserButton().addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent a) {
 				JFileChooser fileChooser = new JFileChooser();
-				String fileName;
-				if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				String filename;
+				if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
 					fileToSend = fileChooser.getSelectedFile();
-					fileName = fileToSend.getName();
-					frame.getFileChooserButton().setText(fileName);
+					filename = fileToSend.getName();
+					frame.getFileChooserButton().setText(filename);
 				}
 			}
 		});
 			
 		frame.getSendingButton().addActionListener(new ActionListener() {
-			@Override
 			public void actionPerformed(ActionEvent a) {
-				int deviceNumber = frame.getDeviceNumber(); //pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
+				int deviceNumber = frame.getDeviceNumber(); // pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
 				bluetooth.sendFile(fileToSend, deviceNumber);
 			}
 		});	
-		}
-		
+	}	
 }

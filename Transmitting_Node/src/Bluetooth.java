@@ -2,7 +2,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -16,20 +15,16 @@ import org.apache.commons.io.IOUtils;
 
 public class Bluetooth implements DiscoveryListener {
 	
-	LocalDevice localDevice;
-	DiscoveryAgent agent;
-	ArrayList<DiscoveredDevice> discoveredDevices; //tablica przechowuj¹ca wykryte urz¹dzenia
-	boolean allDiscovered;
-	
-	byte[] bytesArray;
-	byte[] frame;
-	byte[] ack;
+	private LocalDevice localDevice;
+	public DiscoveryAgent agent;
+	public ArrayList<DiscoveredDevice> discoveredDevices; // tablica przechowuj¹ca wykryte urz¹dzenia
+	public boolean allDiscovered;
 
-	ResponseListener responseListener;
+	private ResponseListener responseListener;
 	
 	public Bluetooth() {
 		try {
-			this.localDevice = LocalDevice.getLocalDevice(); //lokalny adapter Bluetooth
+			this.localDevice = LocalDevice.getLocalDevice(); // lokalny adapter Bluetooth
 		} catch (BluetoothStateException e) {
 			e.printStackTrace();
 		} 
@@ -37,70 +32,70 @@ public class Bluetooth implements DiscoveryListener {
 		this.discoveredDevices = new ArrayList<DiscoveredDevice>();
 		this.allDiscovered = false;
 		
+		// uruchamiamy w¹tek, który nas³uchuje odpowiedzi od wêz³ów podrzêdnych
 		responseListener = new ResponseListener();
 		new Thread(responseListener).start();
 	}
 	
-	//funkcja wywo³ywana w chwili wykrycia urz¹dzenia
-	@Override
+	// funkcja wywo³ywana w chwili wykrycia urz¹dzenia
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
 		String address = remoteDevice.getBluetoothAddress();
 		String name = null;
 		try {
-			name = remoteDevice.getFriendlyName(true); //zapytanie urz¹dzenia o nazwê ('true' - zawsze pytaj)
-		} catch(IOException e) {
+			name = remoteDevice.getFriendlyName(true); // zapytanie urz¹dzenia o nazwê ('true' - zawsze pytaj)
+		} catch (IOException e) {
 			System.out.println("B³¹d odczytu nazwy urz¹dzenia");
 		}
 		System.out.println("Wykryto urz¹dzenie. Adres: " + address + " Nazwa: " + name);
 		
-		//ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
-		//sprawdzenie, czy tablica jest w zasiêgu
-		if(address.startsWith("B827EB")) {
+		// ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
+		// sprawdzenie, czy tablica jest w zasiêgu
+		if (address.startsWith("B827EB")) {
 			boolean isNearby = sendPing(address);
-			if(isNearby == true) {
+			if (isNearby == true) {
 				discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
 				System.out.println("Nawi¹zano po³¹czenie");
 				synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
 					try {
 						this.notifyAll();
-					} catch(Exception e) {};
+					} catch(Exception e) {
+						e.printStackTrace();
+					};
 				}	
-			}
-			else {
+			} else {
 				System.out.println("Tablica poza zasiêgiem");
 			}				
 		}
 	}
 		
-	//funkcja wywo³ywana w chwili zakoñczenia wykrywania urz¹dzeñ
-	@Override
+	// funkcja wywo³ywana w chwili zakoñczenia wykrywania urz¹dzeñ
 	public void inquiryCompleted(int status) {
 		System.out.println("Wyszukiwanie urz¹dzeñ zakoñczone.");
 		synchronized(this) {
 			try {
 				allDiscovered = true;
 				this.notifyAll();
-			} catch(Exception e) {};
+			} catch(Exception e) {
+				e.printStackTrace();
+			};
 		}
 	}
 
-	//funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu - UUID Serial Port Profile, czyli 0x1101)
-	@Override
+	// funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu - UUID Serial Port Profile, czyli 0x1101)
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
-		for(int i=0; i<serviceRecord.length; i++) {
-			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); //pobranie nazwy serwisu - wartoœci atrybutu o ID 0x0100
+		for (int i = 0; i < serviceRecord.length; i++) {
+			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); // pobranie nazwy serwisu - wartoœci atrybutu o ID 0x0100
 			String connectionURL = serviceRecord[i].getConnectionURL(0, false);
-			if(serviceName != null) 
+			if (serviceName != null) {
 				System.out.println((String)serviceName.getValue());
-			else
+			} else {
 				System.out.println("Nieznana us³uga");
-				
+			}	
 			System.out.println(connectionURL);
 		}
 	}
 
-	//funkcja wywo³ywana w chwili zakoñczenia wykrywania serwisów
-	@Override
+	// funkcja wywo³ywana w chwili zakoñczenia wykrywania serwisów
 	public void serviceSearchCompleted(int transID, int responseCode) {
 		synchronized(this) {
 			try {
@@ -121,76 +116,76 @@ public class Bluetooth implements DiscoveryListener {
 				}
 				conn.close();
 				return true;
-			} catch (IOException e1) {
+			} catch (IOException e) {
+				e.printStackTrace();
 				return false;
 			}
 	}
 	
 	public void sendFile(File fileToSend, int deviceNumber) {
+		byte[] frame;
+		
+		frame = buildFrame(fileToSend);
+		startBluetoothConnection(deviceNumber, frame);
+		System.out.println("Czekam na odpowiedz");
+		waitForResponse();
+	}
+	
+	// funkcja tworz¹ca ramkê - liczba bajtów do wys³ania + liczba bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
+	public byte[] buildFrame(File fileToSend) {
+		byte[] frame;
+		byte[] numberOfBytesArray;
+		byte[] filenameBytes = null;
+		byte[] bytesArray = null;
+		
+		int numberOfBytes; // liczba bajtów, na któr¹ sk³ada siê 4 + 1 + liczba bajtów nazwy pliku + liczba bajtów danych
+		String filename;
+		
 		try {
 			FileInputStream is = new FileInputStream(fileToSend);
-			bytesArray = IOUtils.toByteArray(is); //zapisanie pliku wejœciowego do tablicy bajtów
+			bytesArray = IOUtils.toByteArray(is); // zapisanie pliku wejœciowego do tablicy bajtów
 			is.close();
-			buildFrame(fileToSend);
-//			saveBytesToFile();
-			startBluetoothConnection(deviceNumber);
-			System.out.println("Czekam na odpowiedz");
-			waitForResponse();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	//funkcja tworz¹ca ramkê - liczba bajtów do wys³ania + liczba bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
-		public void buildFrame(File fileToSend) {
-			System.out.println("Budujê ramkê");
-			String fileName = new String(fileToSend.getName());
-			byte[] fileNameBytes = null;
-			int numberOfBytes; //liczba bajtów, na któr¹ sk³ada siê 4 + 1 + liczba bajtów nazwy pliku + liczba bajtów danych
-			try {
-				fileNameBytes = fileName.getBytes("UTF-8");
-			} catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-			numberOfBytes = 4 + 1 + fileNameBytes.length + bytesArray.length;
-			frame = new byte[numberOfBytes]; //ramka zawiera na pocz¹tku 4-bajtowe pole przeznaczone do zapisu liczby bajtów do wys³ania (maksymalnie 2^32 bajtów)
-			byte[] numberOfBytesArray = ByteBuffer.allocate(4).putInt(numberOfBytes).array();
-			//uzupe³nienie odpowiednich pól ramki
-			System.arraycopy(numberOfBytesArray, 0, frame, 0, 4);
-			frame[4] = (byte) fileNameBytes.length;
-			System.arraycopy(fileNameBytes, 0, frame, 5, fileNameBytes.length);
-			System.arraycopy(bytesArray, 0, frame, fileNameBytes.length + 5, bytesArray.length);
-		}
-	
-	//funkcja pomocnicza - zapisanie ramki w postaci heksalnej do pliku tekstowego
-	public void saveBytesToFile() {
-		PrintWriter bytesWriter;
+		System.out.println("Budujê ramkê");
+		filename = new String(fileToSend.getName());
+
 		try {
-			File bytesTxtFile = new File("C:\\Users\\MonikaM\\Desktop\\sentBytes.txt");
-			bytesWriter = new PrintWriter(bytesTxtFile);
-			for(byte b : frame) {
-				bytesWriter.print(String.format("0x%02X ", b));
-			}
-			bytesWriter.close();
-		} catch (IOException e) {
+			filenameBytes = filename.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		numberOfBytes = 4 + 1 + filenameBytes.length + bytesArray.length;
+		frame = new byte[numberOfBytes]; // ramka zawiera na pocz¹tku 4-bajtowe pole przeznaczone do zapisu liczby bajtów do wys³ania (maksymalnie 2^32 bajtów)
+		numberOfBytesArray = ByteBuffer.allocate(4).putInt(numberOfBytes).array();
+		// uzupe³nienie odpowiednich pól ramki
+		System.arraycopy(numberOfBytesArray, 0, frame, 0, 4);
+		frame[4] = (byte) filenameBytes.length;
+		System.arraycopy(filenameBytes, 0, frame, 5, filenameBytes.length);
+		System.arraycopy(bytesArray, 0, frame, filenameBytes.length + 5, bytesArray.length);
+		
+		return frame;
 	}
-	
-	public void startBluetoothConnection(int deviceNumber) {
-		//otwarcie po³¹czenie i zapisanie tablicy bajtów do strumienia wyjœciowego
+
+	public void startBluetoothConnection(int deviceNumber, byte[] frame) {
+		// otwarcie po³¹czenie i zapisanie tablicy bajtów do strumienia wyjœciowego
 		StreamConnection conn;
+		OutputStream os;
+		String urlAddress;
+		
 		try {
-			String urlAddress = "btspp://" + discoveredDevices.get(deviceNumber).getRemoteDevice() + ":1";
+			urlAddress = "btspp://" + discoveredDevices.get(deviceNumber).getRemoteDevice() + ":1";
 			conn = (StreamConnection) Connector.open(urlAddress);
 			System.out.println("Otwarto po³¹czenie");
-			OutputStream os = conn.openOutputStream();
+			os = conn.openOutputStream();
 			os.write(frame);
 			os.close();
+			
 			try {
-			TimeUnit.MILLISECONDS.sleep(100);
+				TimeUnit.MILLISECONDS.sleep(100);
 			} catch (Exception e) {
-			e.printStackTrace();
+				e.printStackTrace();
 			}
 			conn.close();
 			System.out.println("Wys³ano " + frame.length + " B danych");
@@ -222,11 +217,9 @@ public class Bluetooth implements DiscoveryListener {
 	}
 	
 	public void checkResponse(byte[] ack) {
-	
-		if(ack[0] == 1) {
+		if (ack[0] == 1) {
 			System.out.println("Transmisja danych przebieg³a pomyœlnie");
-		}
-		else {
+		} else {
 			System.out.println("Podczas transmisji wyst¹pi³ b³¹d");
 		}
 	}

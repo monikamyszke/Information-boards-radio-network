@@ -6,7 +6,7 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 import org.apache.commons.io.IOUtils;
 
-public class ResponseListener implements Runnable{
+public class ResponseListener implements Runnable {
 	
 	private volatile boolean wasResponse;
 	private byte[] data;
@@ -24,17 +24,19 @@ public class ResponseListener implements Runnable{
 		return this.data;
 	}
 
-	@Override
 	public void run() {
 		StreamConnectionNotifier notifier;
+		
 		try {
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID(0x1101).toString());			
 			
-			while(true) {
-				wasResponse = false;
-				StreamConnection conn;
-				conn = (StreamConnection)notifier.acceptAndOpen();
+			while (true) {
 				InputStream is;
+				StreamConnection conn;
+				
+				wasResponse = false;
+				conn = (StreamConnection)notifier.acceptAndOpen();
+				
 				try {
 	    			is = conn.openInputStream();
 	    			data = IOUtils.toByteArray(is);
@@ -42,16 +44,14 @@ public class ResponseListener implements Runnable{
 	    		} catch (IOException e) {
 	    			e.printStackTrace();
 	    		}
+				conn.close();
 				wasResponse = true;
 				System.out.println("Otrzymano odpowiedz");
-				conn.close();
 				
-				while(wasResponse == true);
+				while (wasResponse == true);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
 	}
-
 }
