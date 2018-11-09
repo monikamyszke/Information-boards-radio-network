@@ -14,11 +14,15 @@ import org.apache.commons.io.IOUtils;
 
 public class Bluetooth {
 	
+	private FileDisplay fileDisplay;
 	private StreamConnectionNotifier notifier;
 	private StreamConnection conn;
 	private byte[] ack;
 
 	public void run() {
+		
+		fileDisplay = new FileDisplay();
+		new Thread(fileDisplay).start();
 		
 		try {
 			System.out.println("Nas³uchujê");
@@ -107,13 +111,14 @@ public class Bluetooth {
 		}
 	}
 	
-	public void saveFile(String fileName, byte[] bytesArray) {
+	public void saveFile(String filename, byte[] bytesArray) {
 		FileOutputStream os;
 		try {
-			os = new FileOutputStream("/home/pi/Desktop/Received Files/" + fileName);
-			os.write(bytesArray); //zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
+			os = new FileOutputStream("/home/pi/Desktop/Received_Files/" + filename);
+			os.write(bytesArray); // zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
 			os.close();
 			System.out.println("Zapisano plik");
+			fileDisplay.displayNewFile("/home/pi/Desktop/Received_Files/" + filename);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -124,7 +129,7 @@ public class Bluetooth {
 
 		try {
 			try {
-				TimeUnit.MILLISECONDS.sleep(100); //opóznienie w wys³aniu odpowiedzi
+				TimeUnit.MILLISECONDS.sleep(100); // opóznienie w wys³aniu odpowiedzi
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

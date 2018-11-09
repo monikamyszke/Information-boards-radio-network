@@ -16,12 +16,12 @@ public class ResponseListener implements Runnable {
 	}
 	
 	public boolean checkIfWasResponse() {
-		return this.wasResponse;
+		return wasResponse;
 	}
 	
 	public byte[] getResponse() {
-		this.wasResponse = false;
-		return this.data;
+		wasResponse = false;
+		return data;
 	}
 
 	public void run() {
