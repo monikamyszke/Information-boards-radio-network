@@ -11,6 +11,7 @@ public class GUISearchingThread implements Runnable {
 		this.frame = frame;
 	}
 
+	@Override
 	public void run() {
 		synchronized(bluetooth) { // synchronizacja w¹tków
 			try {

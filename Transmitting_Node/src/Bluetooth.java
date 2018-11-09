@@ -38,6 +38,7 @@ public class Bluetooth implements DiscoveryListener {
 	}
 	
 	// funkcja wywo³ywana w chwili wykrycia urz¹dzenia
+	@Override
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
 		String address = remoteDevice.getBluetoothAddress();
 		String name = null;
@@ -69,6 +70,7 @@ public class Bluetooth implements DiscoveryListener {
 	}
 		
 	// funkcja wywo³ywana w chwili zakoñczenia wykrywania urz¹dzeñ
+	@Override
 	public void inquiryCompleted(int status) {
 		System.out.println("Wyszukiwanie urz¹dzeñ zakoñczone.");
 		synchronized(this) {
@@ -82,11 +84,13 @@ public class Bluetooth implements DiscoveryListener {
 	}
 
 	// funkcja nieu¿ywana
+	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
 
 	}
 
 	// funkcja nieu¿ywana
+	@Override
 	public void serviceSearchCompleted(int transID, int responseCode) {
 	
 	}
@@ -115,7 +119,7 @@ public class Bluetooth implements DiscoveryListener {
 		frame = buildFrame(fileToSend);
 		startBluetoothConnection(deviceNumber, frame);
 		System.out.println("Czekam na odpowiedz");
-		waitForResponse();
+		waitForResponse(frame.length);
 	}
 	
 	// funkcja tworz¹ca ramkê - liczba bajtów do wys³ania + liczba bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
@@ -182,16 +186,19 @@ public class Bluetooth implements DiscoveryListener {
 		}	
 	}
 	
-	public void waitForResponse() {
-		int timeout = 5;
+	public void waitForResponse(int frameLength) {
+		int timeout = (int) Math.ceil((0.0117*(frameLength/1024) + 3.3223));
+		System.out.println(timeout);
 
 		while (timeout != 0 && responseListener.checkIfWasResponse() == false) {
 			try {
+				System.out.println("Czekam...");
 				TimeUnit.SECONDS.sleep(1);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("Czekam...");
+			
 			timeout --;
 		}
 

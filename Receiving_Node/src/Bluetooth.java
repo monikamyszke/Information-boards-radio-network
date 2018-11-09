@@ -5,19 +5,29 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.TimeUnit;
+
+import javax.bluetooth.BluetoothStateException;
+import javax.bluetooth.DataElement;
+import javax.bluetooth.DeviceClass;
+import javax.bluetooth.DiscoveryAgent;
+import javax.bluetooth.DiscoveryListener;
+import javax.bluetooth.LocalDevice;
 import javax.bluetooth.RemoteDevice;
+import javax.bluetooth.ServiceRecord;
 import javax.bluetooth.UUID;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 import org.apache.commons.io.IOUtils;
 
-public class Bluetooth {
+public class Bluetooth implements DiscoveryListener{
 	
 	private FileDisplay fileDisplay;
 	private StreamConnectionNotifier notifier;
 	private StreamConnection conn;
+	private String responseAddress;
 	private byte[] ack;
+	private volatile boolean servicesSearchingCompleted = false;
 
 	public void run() {
 		
@@ -40,15 +50,18 @@ public class Bluetooth {
 	
 	public void listenForConnection() {
 		try {
-			String responseAddress;
+			boolean isFile;
 			// akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
 			conn = (StreamConnection)notifier.acceptAndOpen(); 
 			System.out.println("Otwarto po³¹czenie");
-			RemoteDevice device = RemoteDevice.getRemoteDevice(conn);
-			responseAddress = "btspp://" + device.getBluetoothAddress() + ":6"; 
+			RemoteDevice remoteDevice = RemoteDevice.getRemoteDevice(conn);
 			
-			if (receiveData() == true) {
+			isFile = receiveData();
+			
+			if (isFile == true) {
 				sendResponse(responseAddress);
+			} else {
+				responseAddress = findSocket(remoteDevice);
 			}
 			
 		} catch (IOException e) {
@@ -146,6 +159,64 @@ public class Bluetooth {
 			System.out.println("Wys³ano odpowiedz");
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		}
+	}
+	
+	private String findSocket(RemoteDevice remoteDevice) {
+		UUID[] uuidSet = new UUID[1];
+		uuidSet[0] = new UUID(0x1101); // UUID SPP
+		int[] attrIdSet = new int[] {0x0100}; // atrybut - Service Name ID
+		LocalDevice localDevice = null;
+		DiscoveryAgent agent;
+		
+		System.out.println("Service Discovery");
+		
+		try {
+			localDevice = LocalDevice.getLocalDevice();
+			agent = localDevice.getDiscoveryAgent();
+			agent.searchServices(attrIdSet, uuidSet, remoteDevice, this);
+		} catch (BluetoothStateException e) {
+			e.printStackTrace();
+		}
+		
+		while (servicesSearchingCompleted == false);
+		servicesSearchingCompleted = false;
+		
+		return responseAddress;
+	}
+	// funkcja nieu¿ywana
+	@Override
+	public void deviceDiscovered(RemoteDevice arg0, DeviceClass arg1) {
+		
+	}
+	
+	// funkcja nieu¿ywana
+	@Override
+	public void inquiryCompleted(int arg0) {
+		
+	}
+
+	// funkcja nieu¿ywana
+	@Override
+	public void serviceSearchCompleted(int arg0, int arg1) {
+		
+	}
+	
+	// funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu UUID SPP)
+	@Override
+	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
+		for (int i = 0; i < serviceRecord.length; i++) {
+			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); //pobranie nazwy serwisu - wartosci atrybutu o ID 0x0100
+			String connectionURL = serviceRecord[i].getConnectionURL(0, false);
+			if (serviceName != null) {
+				System.out.println((String)serviceName.getValue());
+			} else {
+				System.out.println("Nieznana us³uga");
+			}
+			
+			responseAddress = connectionURL;
+			servicesSearchingCompleted = true;
+			System.out.println(responseAddress);
 		}
 	}
 }

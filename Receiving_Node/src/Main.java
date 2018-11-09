@@ -16,6 +16,7 @@ public class Main {
 		
 		// wy³¹czenie widocznoœci urz¹dzenia w momencie zakoñczenie dzia³ania programu
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
 			public void run() {
 				String[] nonDiscoverableCommand = new String[] {"hciconfig", "hci0", "noscan"};
 				try {

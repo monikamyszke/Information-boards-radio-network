@@ -25,6 +25,7 @@ public class Main {
 		}
 	 
 		frame.getSearchingButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				try {
 					bluetooth.discoveredDevices.clear();
@@ -40,6 +41,7 @@ public class Main {
 		});	
 		
 		frame.getFileChooserButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				JFileChooser fileChooser = new JFileChooser();
 				String filename;
@@ -52,6 +54,7 @@ public class Main {
 		});
 			
 		frame.getSendingButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				int deviceNumber = frame.getDeviceNumber(); // pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
 				bluetooth.sendFile(fileToSend, deviceNumber);
