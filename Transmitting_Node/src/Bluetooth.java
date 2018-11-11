@@ -51,11 +51,11 @@ public class Bluetooth implements DiscoveryListener {
 		
 		// ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
 		// sprawdzenie, czy tablica jest w zasiêgu
-		if (address.startsWith("B827EB")) {
-			boolean isNearby = sendPing(address);
-			if (isNearby == true) {
+//		if (address.startsWith("B827EB")) {
+//			boolean isNearby = sendPing(address);
+//			if (isNearby == true) {
 				discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
-				System.out.println("Nawi¹zano po³¹czenie");
+//				System.out.println("Nawi¹zano po³¹czenie");
 				synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
 					try {
 						this.notifyAll();
@@ -63,10 +63,10 @@ public class Bluetooth implements DiscoveryListener {
 						e.printStackTrace();
 					};
 				}	
-			} else {
-				System.out.println("Tablica poza zasiêgiem");
-			}				
-		}
+//			} else {
+//				System.out.println("Tablica poza zasiêgiem");
+//			}				
+//		}
 	}
 		
 	// funkcja wywo³ywana w chwili zakoñczenia wykrywania urz¹dzeñ

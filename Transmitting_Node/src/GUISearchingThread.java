@@ -23,8 +23,8 @@ public class GUISearchingThread implements Runnable {
 					if (bluetooth.allDiscovered == true) {
 						break;
 					}
-					frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i).getRemoteDevice()+  "     Nazwa: " + bluetooth.discoveredDevices.get(i).getName());
-					frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); // dodanie urz¹dzenia do listy w GUI
+				frame.setLabel(bluetooth.discoveredDevices.get(i).getRemoteDevice(), bluetooth.discoveredDevices.get(i).getName());
+				frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); // dodanie urz¹dzenia do listy w GUI
 					i++;
 				}
 			} catch (Exception e) {
@@ -32,6 +32,6 @@ public class GUISearchingThread implements Runnable {
 			}
 		}
 		
-		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");		
+//		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");		
 	}
 }

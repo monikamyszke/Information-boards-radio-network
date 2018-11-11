@@ -18,7 +18,7 @@ public class Main {
 		try {
 			frame = new AppWindow();
 			frame.setVisible(true);
-			frame.setResizable(true);
+			frame.setResizable(false);
 			frame.setSize(1000, 600);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -49,6 +49,7 @@ public class Main {
 					fileToSend = fileChooser.getSelectedFile();
 					filename = fileToSend.getName();
 					frame.getFileChooserButton().setText(filename);
+					frame.setFileSize(fileToSend.length());
 				}
 			}
 		});
