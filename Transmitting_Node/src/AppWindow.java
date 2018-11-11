@@ -1,58 +1,65 @@
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.Color;
-import java.awt.GridLayout;
+
+import javax.bluetooth.RemoteDevice;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.SwingConstants;
 import java.awt.Dimension;
 import java.awt.Font;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import javax.swing.JComboBox;
-import java.awt.FlowLayout;
 
 public class AppWindow extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel mainPanel;
-	private Color grey = new Color(58, 68, 84);
+	private Color orange = new Color(253, 180, 69);
 	private Color white = new Color(255, 255, 255);
-	private Color mint = new Color(17, 151, 150);
+	private Color navy = new Color(0, 55, 103);
 	
-	private JButton searchButton;
-	private JTextPane devices;
-	private JComboBox<String> listOfdevices;
-	private JButton sendButton;
+	private JButton searchDevicesButton;
+	private JTextPane searchedDevicesLabel;
+	private JComboBox<String> listOfDevices;
 	private JButton chooseFileButton;
+	private JTextPane fileSizeLabel;
+	private JButton sendButton;
 	
 	public JButton getSearchingButton() {
-		return searchButton;
+		return searchDevicesButton;
 	}
 	
-	public void setLabel(String device) {
-		this.devices.setText(devices.getText() + "\n" + device);
+	public void setLabel(RemoteDevice device, String name) {
+		this.searchedDevicesLabel.setText(searchedDevicesLabel.getText() + "Wykryto urz¹dzenie!\nNazwa: " + name + "\nAdres MAC: " + device +"\n\n");
 	}
 	
 	public void clearLabel() {
-		this.devices.setText("");
+		this.searchedDevicesLabel.setText("");
 	}
 	
 	public void setListOfDevices(String name) {
-		this.listOfdevices.addItem(name);
+		this.listOfDevices.addItem(name);
 	}
 	
 	public void clearListOfDevices() {
-		this.listOfdevices.removeAllItems();
+		this.listOfDevices.removeAllItems();
 	}
 	
 	public int getDeviceNumber(){
-		return this.listOfdevices.getSelectedIndex();
+		return this.listOfDevices.getSelectedIndex();
 	}
 	
 	public JButton getFileChooserButton() {
 		return chooseFileButton;
+	}
+	
+	public void setFileSize(long fileSize) {
+		this.fileSizeLabel.setText("Rozmiar pliku:  " + fileSize +  " B");
 	}
 	
 	public JButton getSendingButton() {
@@ -60,103 +67,168 @@ public class AppWindow extends JFrame {
 	}
 
 	public AppWindow() {
-		setTitle("Transmitting Node");
+		setTitle("");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 400);
 		mainPanel = new JPanel();
 		mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		mainPanel.setBackground(mint);
-		mainPanel.setLayout(new GridLayout(1, 2, 0, 0));
+		mainPanel.setBackground(navy);
 		setContentPane(mainPanel);
+		mainPanel.setLayout(new BorderLayout(0, 0));
 		
-		JPanel panel1 = new JPanel();
-		mainPanel.add(panel1);
-		JPanel panel2 = new JPanel();
-		mainPanel.add(panel2);
-		panel2.setLayout(new BorderLayout(0, 0));
+		JPanel topPanel = new JPanel();
+		topPanel.setForeground(new Color(0, 0, 0));
+		topPanel.setBackground(navy);
+		mainPanel.add(topPanel, BorderLayout.NORTH);
 		
-		JPanel top2 = new JPanel();
-		top2.setBorder(new EmptyBorder(30, 0, 0, 0));
-		top2.setPreferredSize(new Dimension(0, 100));
-		panel2.add(top2, BorderLayout.NORTH);
+		ImageIcon signalIcon;
+		signalIcon = new ImageIcon(getClass().getResource("radiosignal.png"));
+		topPanel.setLayout(new BorderLayout(0, 0));
 		
-		JPanel bottom2 = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) bottom2.getLayout();
-		flowLayout.setVgap(0);
-		flowLayout.setHgap(0);
-		bottom2.setBorder(new EmptyBorder(40, 0, 0, 0));
-		bottom2.setPreferredSize(new Dimension(0, 150));
-		panel2.add(bottom2, BorderLayout.SOUTH);
+		JLabel title = new JLabel("Radiowa sieæ tablic informacyjnych", signalIcon, SwingConstants.CENTER);
+		title.setVerticalTextPosition(JLabel.CENTER);
+		title.setHorizontalTextPosition(JLabel.LEFT);
+		title.setIconTextGap(20);
+		title.setFont(new Font("Raleway", Font.PLAIN, 40));
+		title.setForeground(white);
+		topPanel.add(title);
 		
-		sendButton = new JButton("WYŒLIJ DO URZ¥DZENIA");
-		sendButton.setFont(new Font("Ebrima", Font.BOLD, 13));
-		sendButton.setBackground(mint);
+		JLabel subtitle = new JLabel("zrealizowana z wykorzystaniem platformy Raspberry Pi", SwingConstants.CENTER);
+		subtitle.setFont(new Font("Raleway", Font.PLAIN, 15));
+		subtitle.setForeground(white);
+		topPanel.add(subtitle, BorderLayout.SOUTH);
+		
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setBackground(navy);
+		mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+		
+		sendButton = new JButton("Wyœlij do tablicy!");
+		sendButton.setFont(new Font("Raleway SemiBold", Font.PLAIN, 16));
 		sendButton.setForeground(white);
+		sendButton.setBackground(orange);
 		sendButton.setFocusPainted(false);
-		bottom2.add(sendButton);
+		sendButton.setPreferredSize(new Dimension(200, 50));
+		bottomPanel.add(sendButton);
 		
-		JPanel center2 = new JPanel();
-		center2.setBorder(new EmptyBorder(20, 20, 30, 20));
-		center2.setBackground(grey);
-		bottom2.setBackground(grey);
-		panel2.add(center2, BorderLayout.CENTER);
+		JPanel leftPanel = new JPanel();
+		leftPanel.setPreferredSize(new Dimension(320, 100));
 		
-		panel1.setBackground(mint);
-		top2.setBackground(grey);
-		panel1.setLayout(new BorderLayout(0, 0));
+		leftPanel.setBackground(navy);
+		mainPanel.add(leftPanel, BorderLayout.WEST);
+		leftPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel centerPanel = new JPanel();
+		centerPanel.setBackground(navy);
+		mainPanel.add(centerPanel, BorderLayout.CENTER);
+		centerPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel rightPanel = new JPanel();
+		rightPanel.setPreferredSize(new Dimension(320, 100));
+		rightPanel.setBackground(navy);
+		mainPanel.add(rightPanel, BorderLayout.EAST);
+		rightPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel leftTopPanel = new JPanel();
+		leftTopPanel.setBackground(navy);
+		leftTopPanel.setBorder(new EmptyBorder(100, 0, 0, 0));
+		leftPanel.add(leftTopPanel, BorderLayout.NORTH);
+		JLabel searchDevicesLabel = new JLabel("1. Wyszukaj urz¹dzenia w zasiêgu", SwingConstants.CENTER);
+		searchDevicesLabel.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
+		searchDevicesLabel.setForeground(white);
+		leftTopPanel.add(searchDevicesLabel);
+		
+		JPanel leftCenterPanel = new JPanel();
+		leftCenterPanel.setBackground(navy);
+		leftCenterPanel.setBorder(new EmptyBorder(45, 0, 0, 0));
+		leftCenterPanel.setBorder(new MatteBorder(0, 0, 0, 1, white));
+		leftPanel.add(leftCenterPanel, BorderLayout.CENTER);
+		leftCenterPanel.setLayout(new BorderLayout(0, 0));
+		
+		JPanel searchDevicesButtonPanel = new JPanel();
+		searchDevicesButtonPanel.setBackground(navy);
+		leftCenterPanel.add(searchDevicesButtonPanel, BorderLayout.NORTH);
+		
+		searchDevicesButton = new JButton("Rozpocznij");
+		searchDevicesButton.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
+		searchDevicesButton.setFocusPainted(false);
+		searchDevicesButton.setBackground(orange);
+		searchDevicesButton.setForeground(white);
+		searchDevicesButton.setFocusPainted(false);
+		searchDevicesButton.setPreferredSize(new Dimension(200, 40));
+		searchDevicesButtonPanel.add(searchDevicesButton);
+		
+		JPanel searchDevicesPanel = new JPanel();
+		searchDevicesPanel.setBackground(navy);
+		leftCenterPanel.add(searchDevicesPanel, BorderLayout.CENTER);
+		
+		searchedDevicesLabel = new JTextPane();
+		searchedDevicesLabel.setBackground(navy);
+		searchedDevicesLabel.setFont(new Font("Raleway SemiBold", Font.PLAIN, 13));
+		searchedDevicesLabel.setForeground(white);
+		searchedDevicesLabel.setEditable(false);
+		searchDevicesPanel.add(searchedDevicesLabel);
+		
+		JPanel centerTopPanel = new JPanel();
+		centerTopPanel.setBackground(navy);
+		centerTopPanel.setBorder(new EmptyBorder(100, 0, 0, 0));
+		centerPanel.add(centerTopPanel, BorderLayout.NORTH);
+		JLabel chooseDeviceLabel = new JLabel("2. Wybierz z listy urz¹dzenie docelowe", SwingConstants.CENTER);
+		chooseDeviceLabel.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
+		chooseDeviceLabel.setForeground(white);
+		centerTopPanel.add(chooseDeviceLabel);
+		
+		JPanel centerCenterPanel = new JPanel();
+		centerCenterPanel.setBackground(navy);
+		centerCenterPanel.setBorder(new EmptyBorder(50, 0, 0, 0));
+		centerPanel.add(centerCenterPanel, BorderLayout.CENTER);
+		
+		listOfDevices = new JComboBox<String>();
+		listOfDevices.setPreferredSize(new Dimension(230, 30));
+		centerCenterPanel.add(listOfDevices);
+		
+		JPanel rightTopPanel = new JPanel();
+		rightTopPanel.setBackground(navy);
+		rightTopPanel.setBorder(new EmptyBorder(100, 0, 0, 0));
+		rightPanel.add(rightTopPanel, BorderLayout.NORTH);
+		
+		JLabel chooseFileLabel = new JLabel("3. Wybierz plik do wys³ania", SwingConstants.CENTER);
+		chooseFileLabel.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
+		chooseFileLabel.setForeground(white);
+		rightTopPanel.add(chooseFileLabel);
+		
+		JPanel rightCenterPanel = new JPanel();
+		rightCenterPanel.setBackground(navy);
+		rightCenterPanel.setLayout(new BorderLayout(0, 0));
+		rightCenterPanel.setBorder(new EmptyBorder(45, 0, 0, 0));
+		rightCenterPanel.setBorder(new MatteBorder(0, 1, 0, 0, white));
+		rightPanel.add(rightCenterPanel, BorderLayout.CENTER);
+		
+		JPanel chooseFileButtonPanel = new JPanel();
+		chooseFileButtonPanel.setBackground(navy);
+		chooseFileButtonPanel.setBorder(new EmptyBorder(45, 0, 0, 0));
+		rightCenterPanel.add(chooseFileButtonPanel, BorderLayout.NORTH);
 		
 		chooseFileButton = new JButton("Wybierz plik z dysku");
-		chooseFileButton.setFont(new Font("Ebrima", Font.BOLD, 13));
+		chooseFileButton.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
 		chooseFileButton.setFocusPainted(false);
-		chooseFileButton.setBackground(grey);
+		chooseFileButton.setBackground(orange);
 		chooseFileButton.setForeground(white);
 		chooseFileButton.setFocusPainted(false);
-		chooseFileButton.setPreferredSize(new Dimension(200, 100));
-		center2.add(chooseFileButton, BorderLayout.CENTER);
+		chooseFileButton.setPreferredSize(new Dimension(200, 40));
+		chooseFileButtonPanel.add(chooseFileButton);
 		
-		JPanel top = new JPanel();
-		top.setBorder(new EmptyBorder(30, 0, 0, 0));
-		top.setPreferredSize(new Dimension(0, 100));
-		top.setBackground(mint);
-		panel1.add(top, BorderLayout.NORTH);
+		JPanel fileSizePanel = new JPanel();
+		fileSizePanel.setBackground(navy);
+		fileSizePanel.setBorder(new EmptyBorder(45, 0, 0, 0));
+		rightCenterPanel.add(fileSizePanel, BorderLayout.CENTER);
 		
-		searchButton = new JButton("ROZPOCZNIJ WYSZUKIWANIE URZ\u0104DZE\u0143");
-		searchButton.setFont(new Font("Ebrima", Font.BOLD, 13));
-		searchButton.setFocusPainted(false);
-		searchButton.setBackground(grey);
-		searchButton.setForeground(white);
-		top.add(searchButton);
+		fileSizeLabel = new JTextPane();
+		fileSizeLabel.setBackground(navy);
+		fileSizeLabel.setForeground(white);
+		fileSizeLabel.setFont(new Font("Raleway SemiBold", Font.PLAIN, 15));
+		fileSizeLabel.setEditable(false);
+		fileSizePanel.add(fileSizeLabel);
 		
-		
-		JPanel center = new JPanel();
-		center.setBorder(new EmptyBorder(20, 20, 20, 20));
-		center.setBackground(mint);
-		panel1.add(center, BorderLayout.CENTER);
-		center.setLayout(new BorderLayout(0, 0));
-		
-		devices = new JTextPane();
-		devices.setFont(new Font("Ebrima", Font.BOLD, 13));
-		devices.setForeground(Color.WHITE);
-		devices.setEditable(false);
-		devices.setBackground(mint);
-		center.add(devices, BorderLayout.CENTER);
-	 
-		JPanel bottom = new JPanel();
-		bottom.setBorder(new EmptyBorder(40, 95, 90, 95));
-		bottom.setBackground(mint);
-		bottom.setPreferredSize(new Dimension(0, 200));
-		panel1.add(bottom, BorderLayout.SOUTH);
-		bottom.setLayout(new BorderLayout(0, 0));
-		
-		JLabel lblWybierzZListy = new JLabel("Wybierz z listy urz\u0105dzenie docelowe:");
-		lblWybierzZListy.setBorder(new EmptyBorder(0, 0, 20, 0));
-		lblWybierzZListy.setFont(new Font("Ebrima", Font.BOLD, 13));
-		lblWybierzZListy.setHorizontalAlignment(SwingConstants.CENTER);
-		lblWybierzZListy.setForeground(white);
-		bottom.add(lblWybierzZListy, BorderLayout.NORTH);
-		
-		listOfdevices = new JComboBox<String>();
-		bottom.add(listOfdevices, BorderLayout.CENTER);
 	
 	}
 }

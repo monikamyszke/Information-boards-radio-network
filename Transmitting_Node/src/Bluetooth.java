@@ -38,6 +38,7 @@ public class Bluetooth implements DiscoveryListener {
 	}
 	
 	// funkcja wywo³ywana w chwili wykrycia urz¹dzenia
+	@Override
 	public void deviceDiscovered(RemoteDevice remoteDevice, DeviceClass deviceClass) {
 		String address = remoteDevice.getBluetoothAddress();
 		String name = null;
@@ -50,11 +51,11 @@ public class Bluetooth implements DiscoveryListener {
 		
 		// ograniczenie dalszych dzia³añ do adresów MAC Raspberry Pi
 		// sprawdzenie, czy tablica jest w zasiêgu
-		if (address.startsWith("B827EB")) {
-			boolean isNearby = sendPing(address);
-			if (isNearby == true) {
+//		if (address.startsWith("B827EB")) {
+//			boolean isNearby = sendPing(address);
+//			if (isNearby == true) {
 				discoveredDevices.add(new DiscoveredDevice(remoteDevice, name));
-				System.out.println("Nawi¹zano po³¹czenie");
+//				System.out.println("Nawi¹zano po³¹czenie");
 				synchronized(this) { //synchronizacja z w¹tkiem GUISearchingThread
 					try {
 						this.notifyAll();
@@ -62,13 +63,14 @@ public class Bluetooth implements DiscoveryListener {
 						e.printStackTrace();
 					};
 				}	
-			} else {
-				System.out.println("Tablica poza zasiêgiem");
-			}				
-		}
+//			} else {
+//				System.out.println("Tablica poza zasiêgiem");
+//			}				
+//		}
 	}
 		
 	// funkcja wywo³ywana w chwili zakoñczenia wykrywania urz¹dzeñ
+	@Override
 	public void inquiryCompleted(int status) {
 		System.out.println("Wyszukiwanie urz¹dzeñ zakoñczone.");
 		synchronized(this) {
@@ -81,27 +83,16 @@ public class Bluetooth implements DiscoveryListener {
 		}
 	}
 
-	// funkcja wywo³ywana w chwili wykrycia serwisu pasuj¹cego do danego UUID (tu - UUID Serial Port Profile, czyli 0x1101)
+	// funkcja nieu¿ywana
+	@Override
 	public void servicesDiscovered(int transID, ServiceRecord[] serviceRecord) {
-		for (int i = 0; i < serviceRecord.length; i++) {
-			DataElement serviceName = serviceRecord[i].getAttributeValue(0x0100); // pobranie nazwy serwisu - wartoœci atrybutu o ID 0x0100
-			String connectionURL = serviceRecord[i].getConnectionURL(0, false);
-			if (serviceName != null) {
-				System.out.println((String)serviceName.getValue());
-			} else {
-				System.out.println("Nieznana us³uga");
-			}	
-			System.out.println(connectionURL);
-		}
+
 	}
 
-	// funkcja wywo³ywana w chwili zakoñczenia wykrywania serwisów
+	// funkcja nieu¿ywana
+	@Override
 	public void serviceSearchCompleted(int transID, int responseCode) {
-		synchronized(this) {
-			try {
-				this.notifyAll();
-			} catch(Exception e) {};	
-		}	
+	
 	}
 	
 	public boolean sendPing(String address) {
@@ -128,7 +119,7 @@ public class Bluetooth implements DiscoveryListener {
 		frame = buildFrame(fileToSend);
 		startBluetoothConnection(deviceNumber, frame);
 		System.out.println("Czekam na odpowiedz");
-		waitForResponse();
+		waitForResponse(frame.length);
 	}
 	
 	// funkcja tworz¹ca ramkê - liczba bajtów do wys³ania + liczba bajtów nazwy pliku + nazwa pliku + w³aœciwe dane
@@ -195,16 +186,19 @@ public class Bluetooth implements DiscoveryListener {
 		}	
 	}
 	
-	public void waitForResponse() {
-		int timeout = 5;
+	public void waitForResponse(int frameLength) {
+		int timeout = (int) Math.ceil((0.0117*(frameLength/1024) + 3.3223));
+		System.out.println(timeout);
 
 		while (timeout != 0 && responseListener.checkIfWasResponse() == false) {
 			try {
+				System.out.println("Czekam...");
 				TimeUnit.SECONDS.sleep(1);
+				
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			System.out.println("Czekam...");
+			
 			timeout --;
 		}
 

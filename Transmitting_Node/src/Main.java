@@ -18,15 +18,17 @@ public class Main {
 		try {
 			frame = new AppWindow();
 			frame.setVisible(true);
-			frame.setResizable(true);
+			frame.setResizable(false);
 			frame.setSize(1000, 600);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	 
 		frame.getSearchingButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				try {
+					bluetooth.discoveredDevices.clear();
 					bluetooth.allDiscovered = false;
 					System.out.println("Device discovery");
 					bluetooth.agent.startInquiry(DiscoveryAgent.GIAC, bluetooth); // rozpoczêcie wyszukiwania urz¹dzeñ
@@ -39,6 +41,7 @@ public class Main {
 		});	
 		
 		frame.getFileChooserButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				JFileChooser fileChooser = new JFileChooser();
 				String filename;
@@ -46,11 +49,13 @@ public class Main {
 					fileToSend = fileChooser.getSelectedFile();
 					filename = fileToSend.getName();
 					frame.getFileChooserButton().setText(filename);
+					frame.setFileSize(fileToSend.length());
 				}
 			}
 		});
 			
 		frame.getSendingButton().addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent a) {
 				int deviceNumber = frame.getDeviceNumber(); // pozycja urz¹dzenia na liœcie, z którym ma byæ nawi¹zane po³¹czenie
 				bluetooth.sendFile(fileToSend, deviceNumber);

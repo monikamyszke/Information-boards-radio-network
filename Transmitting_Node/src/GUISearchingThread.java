@@ -11,6 +11,7 @@ public class GUISearchingThread implements Runnable {
 		this.frame = frame;
 	}
 
+	@Override
 	public void run() {
 		synchronized(bluetooth) { // synchronizacja w¹tków
 			try {
@@ -18,17 +19,19 @@ public class GUISearchingThread implements Runnable {
 				frame.clearListOfDevices();
 				int i = 0;
 				while (bluetooth.allDiscovered == false) {
-					frame.setLabel("Wykryto urz¹dzeni543544");
 					bluetooth.wait(); // czekanie na powiadomienie o wykryciu urz¹dzenia z metody deviceDiscovered()
-					frame.setLabel("Wykryto urz¹dzenie:          Adres MAC: " + bluetooth.discoveredDevices.get(i).getRemoteDevice()+  "     Nazwa: " + bluetooth.discoveredDevices.get(i).getName());
-					frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); // dodanie urz¹dzenia do listy w GUI
+					if (bluetooth.allDiscovered == true) {
+						break;
+					}
+				frame.setLabel(bluetooth.discoveredDevices.get(i).getRemoteDevice(), bluetooth.discoveredDevices.get(i).getName());
+				frame.setListOfDevices(bluetooth.discoveredDevices.get(i).getName()); // dodanie urz¹dzenia do listy w GUI
 					i++;
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 		
-		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");		
+//		frame.setLabel(" \n\n Wyszukiwanie urz¹dzeñ zakoñczone.");		
 	}
 }
