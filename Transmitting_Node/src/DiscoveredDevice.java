@@ -6,8 +6,8 @@ public class DiscoveredDevice {
 	private String name;
 	
 	public DiscoveredDevice(RemoteDevice remoteDevice, String name) {
-		this.remoteDevice = remoteDevice;
-		this.name = name;
+		this.remoteDevice = remoteDevice; // adres MAC urz¹dzenia
+		this.name = name; // nazwa urz¹dzenia
 	}
 	
 	public RemoteDevice getRemoteDevice() {

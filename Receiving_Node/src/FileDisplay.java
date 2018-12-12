@@ -33,6 +33,7 @@ public class FileDisplay implements Runnable{
 		screenHeight = Toolkit.getDefaultToolkit().getScreenSize().height;
 		GraphicsDevice gs = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 		
+		// wyœwietlenie obrazu startowego
 		if (frame == null) {
 			frame = new JFrame(gs.getDefaultConfiguration());
 			frame.setSize(screenWidth, screenHeight);
@@ -47,13 +48,14 @@ public class FileDisplay implements Runnable{
 			newFileReceived = false;
 			String fileExtension = FilenameUtils.getExtension(filename);
 			
+			// wywo³anie odpowiedniej funkcji wyœwietlaj¹cej plik w zale¿noœci od jego rozszerzenia
 			if (fileExtension.equals("pdf")) {
 				displayPdf(filename);
 			} else if (fileExtension.equals("html")){
 				displayHtml(filename);
 			} else if (fileExtension.equals("txt")){
 				displayTxt(filename);
-			} else if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals("png") ||  fileExtension.equals("gif")){
+			} else if (fileExtension.equals("jpg") || fileExtension.equals("jpeg") || fileExtension.equals("png") ||  fileExtension.equals("gif") || fileExtension.equals("bmp")){
 				displayImage(filename);
 			}
 		}
@@ -66,14 +68,13 @@ public class FileDisplay implements Runnable{
 	}
 	
 	private void displayHtml(String filename) {
-		// chromium-browser 
-		String [] command = new String[] {"chromium-browser", filename};
+		// chromium-browser  --start-fullscreen
+		String [] command = new String[] {"chromium-browser", "--start-fullscreen", filename};
 		runProcess(command);
 	}
 	
 	private void displayTxt(String filename) {
-		
-		
+		displayHtml(filename);
 	}
 	
 	private void displayImage(String filename) {
@@ -93,6 +94,7 @@ public class FileDisplay implements Runnable{
 		int yi_new;
 		
 		frame.getContentPane().removeAll();
+		frame.getContentPane().setVisible(false);
 		
 		if (filename.equals("startImage.png")) {
 			url = FileDisplay.class.getResource(filename);
@@ -116,6 +118,7 @@ public class FileDisplay implements Runnable{
 		dx = xi - screenWidth;
 		dy = yi - screenHeight;
 		
+		// skalowanie wymiarów pliku graficznego
 		if ((dx <= 0) && (dy <= 0)) {
 			k = 1;
 		} else {
@@ -135,9 +138,10 @@ public class FileDisplay implements Runnable{
 		newImage = icon.getImage().getScaledInstance(xi_new, yi_new, Image.SCALE_SMOOTH);
 		label = new JLabel(new ImageIcon(newImage), JLabel.CENTER);
 		frame.add(label);
-		frame.setVisible(true);
+		frame.getContentPane().setVisible(true);
 	}
 	
+	// funkcja uruchamiaj¹ca podan¹ komendê w wierszu poleceñ
 	private void runProcess(String[] command) {
 		Process process;
 		

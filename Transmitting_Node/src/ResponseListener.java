@@ -15,20 +15,12 @@ public class ResponseListener implements Runnable {
 		this.wasResponse = false;
 	}
 	
-	public boolean checkIfWasResponse() {
-		return wasResponse;
-	}
-	
-	public byte[] getResponse() {
-		wasResponse = false;
-		return data;
-	}
-
 	@Override
 	public void run() {
 		StreamConnectionNotifier notifier;
 		
 		try {
+			// utworzenie obiektu nas³uchuj¹cego po³¹czenia - odpowiedzi od wêz³a podrzêdnego
 			notifier = (StreamConnectionNotifier)Connector.open("btspp://localhost:" + new UUID(0x1101).toString());			
 			
 			while (true) {
@@ -39,6 +31,7 @@ public class ResponseListener implements Runnable {
 				conn = (StreamConnection)notifier.acceptAndOpen();
 				
 				try {
+					// pobranie danych ze strumienia wejœciowego (pobranie odpowiedzi)
 	    			is = conn.openInputStream();
 	    			data = IOUtils.toByteArray(is);
 	    			is.close();
@@ -54,5 +47,16 @@ public class ResponseListener implements Runnable {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	// funkcja sprawdzaj¹ca, czy otrzymano odpowiedz
+	public boolean checkIfWasResponse() {
+		return wasResponse;
+	}
+	
+	// funkcja zwracaj¹ca otrzyman¹ odpowiedz w postaci tablicy bajtów
+	public byte[] getResponse() {
+		wasResponse = false;
+		return data;
 	}
 }

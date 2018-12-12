@@ -22,15 +22,16 @@ import org.apache.commons.io.IOUtils;
 
 public class Bluetooth implements DiscoveryListener{
 	
-	private FileDisplay fileDisplay;
 	private StreamConnectionNotifier notifier;
 	private StreamConnection conn;
+	private FileDisplay fileDisplay;
 	private String responseAddress;
 	private byte[] ack;
 	private volatile boolean servicesSearchingCompleted = false;
 
 	public void run() {
 		
+		// uruchomienie w¹tku odpowiedzialnego za wyœwietlanie plików
 		fileDisplay = new FileDisplay();
 		new Thread(fileDisplay).start();
 		
@@ -48,20 +49,21 @@ public class Bluetooth implements DiscoveryListener{
 		}
 	}
 	
-	public void listenForConnection() {
+	private void listenForConnection() {
 		try {
 			boolean isFile;
 			// akceptacja i ustanowienie po stronie serwera po³¹czenia przychodz¹cego od klienta
 			conn = (StreamConnection)notifier.acceptAndOpen(); 
 			System.out.println("Otwarto po³¹czenie");
-			RemoteDevice remoteDevice = RemoteDevice.getRemoteDevice(conn);
+			RemoteDevice remoteDevice = RemoteDevice.getRemoteDevice(conn); // pobranie adresu MAC kontrolera tablic (obiekt RemoteDevice)
 			
 			isFile = receiveData();
 			
+			// sprawdzenie, czy otrzymano dane w postaci pliku
 			if (isFile == true) {
-				sendResponse(responseAddress);
+				sendResponse(responseAddress); // tak - wys³anie odpowiedzi o przebiegu transmisji
 			} else {
-				responseAddress = findSocket(remoteDevice);
+				responseAddress = findSocket(remoteDevice); // nie - pobranie numeru portu kontrolera w celu pózniejszego wys³ania odpowiedzi
 			}
 			
 		} catch (IOException e) {
@@ -69,7 +71,8 @@ public class Bluetooth implements DiscoveryListener{
 		}
 	}
 	
-	public boolean receiveData() {
+	// funkcja zwracaj¹ca 'true', je¿eli w strumieniu zwi¹zanym z po³¹czeniem znajduj¹ siê dane
+	private boolean receiveData() {
 		InputStream is;
 		byte[] frame;
 		boolean isFile = false;
@@ -80,7 +83,7 @@ public class Bluetooth implements DiscoveryListener{
 			is.close();
 			conn.close();
 			if (frame.length == 0) {
-				System.out.println("It's a ping!");
+				System.out.println("It's a ping!"); // je¿eli strumieñ danych jest pusty, to jest to po³¹czenie próbne w trakcie wyszukiwania urz¹dzeñ
 			} else {
 				System.out.println("Odebrano plik");
 				decodeFrameAndSave(frame);
@@ -93,7 +96,8 @@ public class Bluetooth implements DiscoveryListener{
 		return isFile;
 	}
 	
-	public void decodeFrameAndSave(byte[] frame) {
+	// funkcja depakietyzacji na poziomie oprogramowania
+	private void decodeFrameAndSave(byte[] frame) {
 		String filename = null;
 		byte[] filenameBytes;
 		byte[] bytesArray;
@@ -114,6 +118,8 @@ public class Bluetooth implements DiscoveryListener{
 		System.out.println("Zdekodowano ramkê. Liczba bajtów ramki w polu nag³ówka: " + numberOfBytes);
 		System.out.println("D³ugoœæ ramki: " + frame.length);
 		ack = new byte[1];
+		
+		// sprawdzenie zgodnoœci d³ugoœci ramki z zawartoœci¹ pierwszego pola ramki
 		if (frame.length == numberOfBytes) {
 			System.out.println("Dane odebrano poprawnie");
 			ack[0] = 1;
@@ -124,20 +130,22 @@ public class Bluetooth implements DiscoveryListener{
 		}
 	}
 	
-	public void saveFile(String filename, byte[] bytesArray) {
+	// funkcja zapisuj¹ca dane do pliku
+	private void saveFile(String filename, byte[] bytesArray) {
 		FileOutputStream os;
 		try {
 			os = new FileOutputStream("/home/pi/Desktop/Received_Files/" + filename);
-			os.write(bytesArray); // zapisanie bajtów do strumienia wyjœciowego -> w efekcie do pliku
+			os.write(bytesArray); // zapisanie bajtów do strumienia wyjœciowego
 			os.close();
 			System.out.println("Zapisano plik");
-			fileDisplay.displayNewFile("/home/pi/Desktop/Received_Files/" + filename);
+			fileDisplay.displayNewFile("/home/pi/Desktop/Received_Files/" + filename); // wyœwietlenie pliku
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void sendResponse(String address) {
+	// funkcja wysy³aj¹ca odpowiedz 'ack' o przebiegu transmisji
+	private void sendResponse(String address) {
 		StreamConnection responseConn;
 
 		try {
@@ -162,6 +170,7 @@ public class Bluetooth implements DiscoveryListener{
 		}
 	}
 	
+	// pobieranie adresu wraz z numerem portu kontrolera w procesie wyszukiwania seriwsów
 	private String findSocket(RemoteDevice remoteDevice) {
 		UUID[] uuidSet = new UUID[1];
 		uuidSet[0] = new UUID(0x1101); // UUID SPP
